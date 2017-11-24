@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bottom_menu_text_translate">Перевод</string>
+    <string name="bottom_menu_text_history">История</string>
+    <string name="bottom_menu_text_favorites">Избранное</string>
+    <string name="langs_title">Все языки</string>
+    <string name="sync_txt">Обновление..</string>
+    <string name="no_langs_found">No langs available, sorry..</string>
+    <string name="translate_hint">Input text to translate</string>
+    <string name="save_to_fav">Save to favorites</string>
+    <string name="clean_text">Clear</string>
+    <string name="history_search">search</string>
+    <string name="clear_history">Clear</string>
+    <string name="favorites_title">Избранное</string>
+    <string name="history_title">История</string>
+    <string name="no_words">No saved words</string>
+    <string name="favorites_search_hint">search in favorites</string>
+    <string name="history_search_hint">search in history</string>
+    <string name="remove_from_to_fav">Remove from favorites</string>
+</resources>

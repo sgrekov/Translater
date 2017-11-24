@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:id="@+id/phrase_list_layout"
+             android:orientation="horizontal"
+             android:layout_width="match_parent"
+             android:layout_height="70dp">
+
+    <TextView
+            android:text=""
+            tools:text="enigma"
+            android:layout_gravity="left"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="10dp"
+            android:textSize="17dp"
+            android:textColor="@color/black"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/source"
+            android:layout_weight="1"/>
+
+    <TextView
+            android:text=""
+            tools:text="Энигма"
+            android:layout_gravity="left"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="35dp"
+            android:textSize="17dp"
+            android:textColor="@color/gray"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/translated"/>
+
+    <TextView
+            android:text=""
+            tools:text="EN-RU"
+            android:textColor="@color/black"
+            android:layout_gravity="right|center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:id="@+id/lang"/>
+</FrameLayout>

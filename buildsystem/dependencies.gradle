@@ -1,0 +1,164 @@
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+        maven { url "http://repository.ops4j.org/maven2/" }
+        maven { url "https://clojars.org/repo/" }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        mavenCentral()
+        jcenter()
+        maven { url 'https://maven.google.com' }
+        maven { url "http://dl.bintray.com/jetbrains/spek" }
+        maven { url "http://repository.jetbrains.com/all" }
+
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
+ext {
+    //App
+    appVersionName = '0.1'
+    appVersionCode = 1
+    versionFullName = appVersionName + "_" + appVersionCode
+
+    //Android
+    androidBuildToolsVersion = '26.0.2'
+    androidMinSdkVersion = project.hasProperty('msdk') ? msdk.toInteger() : 16
+    androidTargetSdkVersion = 25
+    androidCompileSdkVersion = 25
+
+    //libs
+    androidSupportLibVersion = '25.4.0'
+    gmsVersion = '10.0.1'
+    daggerVersion = '2.8'
+    rxJavaVersion = '2.0.5'
+    rxAndroidVersion = '2.0.1'
+    rxBindingsVersion = '2.0.0'
+    okhttpIdlingVersion = '1.0.0'
+    jetbrainsVersion = '7757'
+    butterknifeVersion = '8.4.0'
+    retrofitVersion = '2.2.0'
+    okhttpVersion = '3.6.0'
+//    gsonVersion = '2.4'
+    moshiVersion = '1.5.0'
+    stethoVersion = '1.4.2'
+    conductorVersion = '2.1.4'
+    timberVersion = '4.5.1'
+    javaxInjectVersion = '1'
+    requeryVersion = '1.4.0'
+    rxRelayVersion = '2.0.0'
+    paperParcelVersion = '2.0.4'
+
+    //test libs
+    mockitoCoreVersion = '2.8.9'
+    junitVersion = '4.12'
+    hamcrestVersion = '1.3'
+    espressoVersion = '2.0'
+    robolectricVersion = '3.1'
+    dexmakerVersion = '1.0'
+    espressoVersion = '2.2.2'
+    testingSupportLibVersion = '0.1'
+    robolectricVersion = '3.1.1'
+    junit_minor_version = 'M4'
+    spek_version = '1.1.2'
+
+    domainDependencies = [
+            daggerCompiler      : "com.google.dagger:dagger-compiler:${daggerVersion}",
+            dagger              : "com.google.dagger:dagger:${daggerVersion}",
+            rxjava              : "io.reactivex.rxjava2:rxjava:${rxJavaVersion}",
+            jetbrainsAnnotations: "org.jetbrains:annotations:${jetbrainsVersion}",
+            javaxInject         : "javax.inject:javax.inject:${javaxInjectVersion}",
+            kotlinStd           : "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}",
+            rxRelay             : "com.jakewharton.rxrelay2:rxrelay:${rxRelayVersion}",
+            paperParcel         : "nz.bradcampbell:paperparcel:${paperParcelVersion}",
+            paperParcelKotlin   : "nz.bradcampbell:paperparcel-kotlin:${paperParcelVersion}",
+            paperParcelApt      : "nz.bradcampbell:paperparcel-compiler:${paperParcelVersion}",
+    ]
+
+    domainTestDependencies = [
+            junit               : "junit:junit:${junitVersion}",
+            mockitoCore         : "org.mockito:mockito-core:${mockitoCoreVersion}",
+            hamcrest            : "org.hamcrest:hamcrest-library:${hamcrestVersion}",
+            daggerCompiler      : "com.google.dagger:dagger-compiler:${daggerVersion}",
+            jetbrainsAnnotations: "org.jetbrains:annotations:${jetbrainsVersion}"
+    ]
+
+    dataDependencies = [
+            supportv4           : "com.android.support:support-v4:${androidSupportLibVersion}",
+            dagger              : "com.google.dagger:dagger:${daggerVersion}",
+            daggerCompiler      : "com.google.dagger:dagger-compiler:${daggerVersion}",
+            jetbrainsAnnotations: "org.jetbrains:annotations:${jetbrainsVersion}",
+//            gson                : "com.google.code.gson:gson:${gsonVersion}",
+            moshi               : "com.squareup.moshi:moshi:${moshiVersion}",
+            moshiKotlin         : "com.squareup.moshi:moshi-kotlin:${moshiVersion}",
+            okhttpInterceptor   : "com.squareup.okhttp3:logging-interceptor:${okhttpVersion}",
+            retrofit2           : "com.squareup.retrofit2:retrofit:${retrofitVersion}",
+//            retrofit2Gson       : "com.squareup.retrofit2:converter-gson:${retrofitVersion}",
+            retrofit2Moshi      : "com.squareup.retrofit2:converter-moshi:${retrofitVersion}",
+            retrofit2RxJava     : "com.squareup.retrofit2:adapter-rxjava2:${retrofitVersion}",
+            requery             : "io.requery:requery:${requeryVersion}",
+            requeryAndroid      : "io.requery:requery-android:${requeryVersion}",
+            requeryProcessor    : "io.requery:requery-processor:${requeryVersion}",
+            timber              : "com.jakewharton.timber:timber:${timberVersion}"
+    ]
+
+    dataTestDependencies = [
+            mockitoCore   : "org.mockito:mockito-core:${mockitoCoreVersion}",
+            junit         : "junit:junit:${junitVersion}",
+            hamcrest      : "org.hamcrest:hamcrest-library:${hamcrestVersion}",
+            robolectric   : "org.robolectric:robolectric:${robolectricVersion}",
+            daggerCompiler: "com.google.dagger:dagger-compiler:${daggerVersion}"
+    ]
+
+    presentationDependencies = [
+            supportv4             : "com.android.support:support-v4:${androidSupportLibVersion}",
+            supportv13            : "com.android.support:support-v13:${androidSupportLibVersion}",
+            supportAppcompatv7    : "com.android.support:appcompat-v7:${androidSupportLibVersion}",
+            supportAnnotations    : "com.android.support:support-annotations:${androidSupportLibVersion}",
+            supportDesign         : "com.android.support:design:${androidSupportLibVersion}",
+
+            rxAndroid             : "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}",
+            rxBindings            : "com.jakewharton.rxbinding2:rxbinding:${rxBindingsVersion}",
+            playServicesBase      : "com.google.android.gms:play-services-base:${gmsVersion}",
+            playServicesGcm       : "com.google.android.gms:play-services-gcm:${gmsVersion}",
+            dagger                : "com.google.dagger:dagger:${daggerVersion}",
+            daggerCompiler        : "com.google.dagger:dagger-compiler:${daggerVersion}",
+            butterknife           : "com.jakewharton:butterknife:${butterknifeVersion}",
+            butterknifeCompiler   : "com.jakewharton:butterknife-compiler:${butterknifeVersion}",
+            retrofit2             : "com.squareup.retrofit2:retrofit:${retrofitVersion}",
+            stetho                : "com.facebook.stetho:stetho:${stethoVersion}",
+            stethoRhino           : "com.facebook.stetho:stetho-js-rhino:${stethoVersion}",
+            conductor             : "com.bluelinelabs:conductor:${conductorVersion}",
+            timber                : "com.jakewharton.timber:timber:${timberVersion}",
+            bottomNavigationViewEx: "com.github.ittianyu:BottomNavigationViewEx:1.1.8"
+    ]
+
+    presentationTestDependencies = [
+            rxjava               : "io.reactivex.rxjava2:rxjava:${rxJavaVersion}",
+            rxAndroid            : "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}",
+            rxBindings           : "com.jakewharton.rxbinding2:rxbinding:${rxBindingsVersion}",
+            junit                : "junit:junit:${junitVersion}",
+            mockitoCore          : "org.mockito:mockito-core:${mockitoCoreVersion}",
+            mockitoAndroid       : "org.mockito:mockito-android:${mockitoCoreVersion}",
+            daggerCompiler       : "com.google.dagger:dagger-compiler:${daggerVersion}",
+
+            supportAnnotations   : "com.android.support:support-annotations:${androidSupportLibVersion}",
+            supportTestRunner    : 'com.android.support.test:runner:0.5',
+            supportTestRules     : 'com.android.support.test:rules:0.5',
+            hamcrest             : "org.hamcrest:hamcrest-library:${hamcrestVersion}",
+
+            dexmaker             : "com.google.dexmaker:dexmaker:${dexmakerVersion}",
+            dexmakerMockito      : "com.google.dexmaker:dexmaker-mockito:${dexmakerVersion}",
+            espresso             : "com.android.support.test.espresso:espresso-core:${espressoVersion}",
+            espressoContrib      : "com.android.support.test.espresso:espresso-contrib:${espressoVersion}",
+            espressoIntents      : "com.android.support.test.espresso:espresso-intents:${espressoVersion}",
+            testingSupportLib    : "com.android.support.test:testing-support-lib:${testingSupportLibVersion}",
+            mockwebserver        : "com.squareup.okhttp3:mockwebserver:${okhttpVersion}",
+            okhttp3IdlingResource: "com.jakewharton.espresso:okhttp3-idling-resource:${okhttpIdlingVersion}"
+    ]
+
+
+}
+
+

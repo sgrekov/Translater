@@ -1,0 +1,64 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion androidCompileSdkVersion
+    buildToolsVersion androidBuildToolsVersion
+
+    defaultConfig {
+        minSdkVersion androidMinSdkVersion
+        targetSdkVersion androidTargetSdkVersion
+        versionCode appVersionCode
+        versionName appVersionName
+
+        buildConfigField "String", "API_URL", "\"https://translate.yandex.net\""
+        buildConfigField "String", "API_TOKEN", "\"trnsl.1.1.20170418T210314Z.acd2f1e9c0062baf.cd8fbfb013a15dae5d1ba023297c0d0f87279884\""
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+
+}
+
+dependencies {
+
+    compile project(':domain')
+
+    def dataDependencies = rootProject.ext.dataDependencies
+    def dataTestDependencies = rootProject.ext.dataTestDependencies
+
+    compile dataDependencies.dagger
+    kapt dataDependencies.daggerCompiler
+
+//    compile dataDependencies.gson
+    compile dataDependencies.moshi
+    compile dataDependencies.moshiKotlin
+    compile dataDependencies.okhttpInterceptor
+    compile dataDependencies.retrofit2
+    compile dataDependencies.retrofit2RxJava
+//    compile dataDependencies.retrofit2Gson
+    compile dataDependencies.retrofit2Moshi
+    compile dataDependencies.timber
+
+    compile dataDependencies.jetbrainsAnnotations
+    compile dataDependencies.requery
+    compile dataDependencies.requeryAndroid
+    kapt dataDependencies.requeryProcessor
+
+    testCompile dataTestDependencies.junit
+    testCompile dataTestDependencies.mockitoCore
+    testCompile dataTestDependencies.hamcrest
+
+
+
+
+
+}

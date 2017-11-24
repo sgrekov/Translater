@@ -1,0 +1,37 @@
+<resources
+>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <!--<item name="colorAccent">@color/colorAccent</item>-->
+        <!--<item name="android:colorPressedHighlight">@color/colorPressed</item>-->
+        <!--<item name="android:windowBackground">@color/windowBackground</item>-->
+        <!--<item name="android:textColorPrimary">@color/textColor</item>-->
+        <!--<item name="android:textColorSecondary">@color/textColorSecondary</item>-->
+        <!--<item name="android:textColorHint">@color/textColorHint</item>-->
+        <!--<item name="android:textColorPrimaryDisableOnly">@color/textColorHint</item>-->
+        <!--<item name="actionMenuTextColor">@drawable/menu_item</item>-->
+        <!--<item name="colorControlNormal">@color/colorAccent</item>-->
+        <!--<item name="colorControlActivated">@color/colorAccent</item>-->
+        <!--<item name="colorControlHighlight">@color/colorAccent</item>-->
+    </style>
+
+    <style name="TranslateToolbarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <!--<item name="colorAccent">@color/colorAccent</item>-->
+        <!--<item name="colorControlNormal">@color/toolbarIconsColor</item>-->
+    </style>
+    <style name="TabBarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:textColorPrimary">@color/colorPrimaryDark</item>
+    </style>
+
+
+
+
+</resources>

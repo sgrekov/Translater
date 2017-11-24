@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name" translatable="false">Translater</string>
+    <string name="bottom_menu_text_translate">Translate</string>
+    <string name="bottom_menu_text_history">History</string>
+    <string name="bottom_menu_text_favorites">Favorites</string>
+    <string name="revert_translate"><![CDATA[<->]]></string>
+    <string name="langs_title">All languages</string>
+    <string name="sync_txt">Syncing..</string>
+    <string name="no_langs_found">No langs available, sorry..</string>
+    <string name="translate_hint">Input text to translate</string>
+    <string name="save_to_fav">Save to favorites</string>
+    <string name="clean_text">Clear</string>
+    <string name="history_search">search</string>
+    <string name="clear_history">Clear</string>
+    <string name="favorites_title">Favorites</string>
+    <string name="history_title">History</string>
+    <string name="no_words">No saved words</string>
+    <string name="favorites_search_hint">search in favorites</string>
+    <string name="history_search_hint">search in history</string>
+    <string name="remove_from_to_fav">Remove from favorites</string>
+</resources>

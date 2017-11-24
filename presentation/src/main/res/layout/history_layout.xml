@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:orientation="vertical"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <FrameLayout
+            android:background="@color/colorPrimary"
+            android:layout_width="match_parent"
+            android:layout_height="50dp">
+
+        <TextView
+                android:id="@+id/history_title"
+                tools:text="История"
+                android:text="История"
+                android:textSize="18dp"
+                android:textColor="@color/black"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+
+        <TextView
+                android:id="@+id/clear_history"
+                tools:text="Очистить"
+                android:text="@string/clear_history"
+                android:layout_gravity="right"
+                android:gravity="center"
+                android:layout_marginRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+
+    </FrameLayout>
+
+    <RelativeLayout
+            android:layout_marginTop="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <EditText
+                android:id="@+id/filter"
+                tools:hint="@string/history_search"
+                android:saveEnabled="false"
+                android:layout_width="match_parent"
+                android:layout_alignParentTop="true"
+                android:layout_height="40dp"/>
+
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/history_list_rv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/filter"
+                android:visibility="gone"/>
+        <TextView
+                android:id="@+id/empty_text"
+                tools:text="No words"
+                android:text="@string/no_words"
+                android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+    </RelativeLayout>
+</FrameLayout>

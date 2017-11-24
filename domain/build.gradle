@@ -1,0 +1,72 @@
+//apply plugin: 'java'
+//apply plugin: 'net.ltgt.apt'
+//apply plugin: "idea"
+//apply plugin: 'kotlin'
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+
+//buildscript {
+//    ext.kotlin_version = '1.1.4-3'
+//    repositories {
+//        maven {
+//            url "https://plugins.gradle.org/m2/"
+//        }
+//        mavenCentral()
+//    }
+//    dependencies {
+//        classpath "net.ltgt.gradle:gradle-apt-plugin:0.7"
+//        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+//    }
+//}
+
+androidExtensions {
+    experimental = true
+}
+
+android {
+    compileSdkVersion androidCompileSdkVersion
+    buildToolsVersion androidBuildToolsVersion
+
+    defaultConfig {
+        minSdkVersion androidMinSdkVersion
+        targetSdkVersion androidTargetSdkVersion
+        versionCode appVersionCode
+        versionName appVersionName
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+
+}
+
+dependencies {
+    def domainDependencies = rootProject.ext.domainDependencies
+    def domainTestDependencies = rootProject.ext.domainTestDependencies
+
+    compile domainDependencies.rxjava
+    compile domainDependencies.jetbrainsAnnotations
+    compile domainDependencies.javaxInject
+    compile dataDependencies.requery
+    compile domainDependencies.kotlinStd
+    kapt dataDependencies.requeryProcessor
+    compile presentationDependencies.dagger
+    kapt presentationDependencies.daggerCompiler
+
+    compile domainDependencies.paperParcel
+    compile domainDependencies.paperParcelKotlin
+    kapt domainDependencies.paperParcelApt
+
+
+    testCompile domainTestDependencies.junit
+    testCompile domainTestDependencies.mockitoCore
+    testCompile domainTestDependencies.hamcrest
+}

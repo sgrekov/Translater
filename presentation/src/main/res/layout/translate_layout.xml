@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <LinearLayout
+            android:id="@+id/translate_toolbar"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_alignParentTop="true"
+            android:gravity="center"
+            android:background="@color/colorPrimary"
+            android:layout_height="50dp">
+
+        <TextView
+                android:id="@+id/lang_from_tv"
+                tools:text="Русский"
+                android:gravity="center"
+                android:text="Русский"
+                android:textColor="@color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+
+        <TextView
+                android:id="@+id/lang_arrow_tv"
+                android:text="@string/revert_translate"
+                android:textColor="@color/black"
+                android:gravity="center"
+                android:layout_marginRight="6dp"
+                android:layout_marginLeft="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+
+        <TextView
+                android:id="@+id/lang_to_tv"
+                tools:text="Английский"
+                android:text="Английский"
+                android:textColor="@color/black"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+    </LinearLayout>
+
+    <EditText
+            android:id="@+id/translate_text_et"
+            android:layout_width="match_parent"
+            android:hint="@string/translate_hint"
+            android:layout_below="@+id/translate_toolbar"
+            android:padding="4dp"
+            android:saveEnabled="false"
+            android:gravity="top"
+            android:maxLines="4"
+            android:layout_margin="4dp"
+            android:layout_height="120dp"/>
+
+    <TextView
+            android:id="@+id/drop_text_tv"
+            android:layout_below="@+id/translate_text_et"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:text="@string/clean_text"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@+id/original_text_transcript_tv"
+            android:layout_below="@+id/drop_text_tv"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="30dp"
+            android:textSize="20sp"
+            tools:text="привет"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@+id/translated_text_tv"
+            android:layout_below="@+id/original_text_transcript_tv"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="30dp"
+            android:textSize="20sp"
+            tools:text="Hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    <!--<android.support.v7.widget.RecyclerView-->
+            <!--android:id="@+id/translations_list_rv"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_below="@+id/translated_text_tv"-->
+            <!--android:layout_marginRight="30dp"-->
+            <!--android:visibility="gone"/>-->
+    <TextView
+            android:id="@+id/save_to_fav_tv"
+            android:text="@string/save_to_fav"
+            android:layout_below="@+id/translate_text_et"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="10dp"
+            android:visibility="gone"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    <TextView
+            android:id="@+id/remove_from_fav_tv"
+            android:text="@string/remove_from_to_fav"
+            android:layout_below="@+id/translate_text_et"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="10dp"
+            android:visibility="gone"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    <ProgressBar
+            android:id="@+id/loading"
+            android:layout_below="@id/drop_text_tv"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+</RelativeLayout>
