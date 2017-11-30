@@ -61,7 +61,7 @@ ext {
     testingSupportLibVersion = '0.1'
     robolectricVersion = '3.1.1'
     junit_minor_version = 'M4'
-    spek_version = '1.1.2'
+    spek_version = '1.1.5'
 
     domainDependencies = [
             daggerCompiler      : "com.google.dagger:dagger-compiler:${daggerVersion}",

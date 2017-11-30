@@ -1,3 +1,14 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+
+    dependencies {
+        classpath "de.mannodermaus.gradle.plugins:android-junit5:1.0.22-SNAPSHOT"
+    }
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
@@ -85,20 +96,17 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 junitPlatform {
-    jupiterVersion "5.0.0-$junit_minor_version"
-    vintageVersion "4.12.0-$junit_minor_version"
-    filters {
-        engines {
-            include 'spek'
-        }
-    }
+    details "tree"
+    jupiterVersion "5.0.2"
+    vintageVersion "4.12.2"
 }
+
 
 androidExtensions {
     experimental = true
@@ -121,55 +129,46 @@ dependencies {
     def presentationDependencies = rootProject.ext.presentationDependencies
     def presentationTestDependencies = rootProject.ext.presentationTestDependencies
 
-    compile presentationDependencies.supportv4
-    compile presentationDependencies.supportv13
-    compile presentationDependencies.supportAppcompatv7
-    compile presentationDependencies.supportAnnotations
-    compile presentationDependencies.supportDesign
-    compile presentationDependencies.playServicesBase
-    compile presentationDependencies.playServicesGcm
-    compile presentationDependencies.bottomNavigationViewEx
+    implementation presentationDependencies.supportv4
+    implementation presentationDependencies.supportv13
+    implementation presentationDependencies.supportAppcompatv7
+    implementation presentationDependencies.supportAnnotations
+    implementation presentationDependencies.supportDesign
+    implementation presentationDependencies.playServicesBase
+    implementation presentationDependencies.playServicesGcm
+    implementation presentationDependencies.bottomNavigationViewEx
 
-    compile presentationDependencies.dagger
+    implementation presentationDependencies.dagger
     kapt presentationDependencies.daggerCompiler
 
-    compile presentationDependencies.butterknife
+    implementation presentationDependencies.butterknife
     kapt presentationDependencies.butterknifeCompiler
 
     kapt domainDependencies.paperParcelApt
 
-    compile presentationDependencies.retrofit2
-    compile presentationDependencies.rxAndroid
-    compile presentationDependencies.rxBindings
-    compile domainDependencies.rxRelay
-    compile presentationDependencies.conductor
-    compile presentationDependencies.stetho
-    compile presentationDependencies.stethoRhino
-    compile presentationDependencies.timber
+    implementation presentationDependencies.retrofit2
+    implementation presentationDependencies.rxAndroid
+    implementation presentationDependencies.rxBindings
+    implementation domainDependencies.rxRelay
+    implementation presentationDependencies.conductor
+    implementation presentationDependencies.stetho
+    implementation presentationDependencies.stethoRhino
+    implementation presentationDependencies.timber
 
 
-    testCompile presentationTestDependencies.supportTestRunner
-    testCompile presentationTestDependencies.rxjava
-    testCompile presentationTestDependencies.rxAndroid
-    testCompile presentationTestDependencies.rxBindings
-    testCompile presentationTestDependencies.junit
-    testCompile presentationTestDependencies.mockitoCore
-    testAnnotationProcessor presentationTestDependencies.daggerCompiler
-    testCompile presentationTestDependencies.daggerCompiler
-    testCompile presentationDependencies.timber
+    testImplementation presentationTestDependencies.mockitoCore
 
-    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    testImplementation "org.jetbrains.spek:spek-api:$spek_version"
+    testImplementation "org.jetbrains.spek:spek-junit-platform-engine:$spek_version"
+    testImplementation "org.jetbrains.spek:spek-subject-extension:$spek_version"
 
-    testCompile "org.jetbrains.spek:spek-api:$spek_version"
-    testCompile "org.jetbrains.spek:spek-junit-platform-engine:$spek_version"
-    testCompile "org.jetbrains.spek:spek-subject-extension:$spek_version"
-
+    testImplementation junit5()
+    testImplementation junit5Params()
     testCompileOnly junit5EmbeddedRuntime()
-    testCompile "org.junit.platform:junit-platform-runner:1.0.0-$junit_minor_version"
-    testCompile "org.junit.platform:junit-platform-launcher:1.0.0-$junit_minor_version"
-    testCompile "org.junit.vintage:junit-vintage-engine:4.12.0-$junit_minor_version"
-    testCompile "org.junit.jupiter:junit-jupiter-engine:5.0.0-$junit_minor_version"
+
+    testImplementation "org.junit.platform:junit-platform-runner:1.0.2"
 
 }
 

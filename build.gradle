@@ -3,7 +3,8 @@ apply from: 'buildsystem/dependencies.gradle'
 buildscript {
     ext {
         google_services_version = '3.1.0'
-        kotlin_version = '1.1.60'
+        kotlin_version = '1.1.61'
+        junit_platform_version = '1.0.2'
     }
 
     repositories {
@@ -18,7 +19,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.0.1'
         classpath "com.google.gms:google-services:${google_services_version}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
-        classpath "de.mannodermaus.gradle.plugins:android-junit5:1.0.12"
+        classpath "org.junit.platform:junit-platform-gradle-plugin:$junit_platform_version"
     }
 }
 

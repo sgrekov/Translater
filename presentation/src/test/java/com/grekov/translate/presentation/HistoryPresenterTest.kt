@@ -1,4 +1,4 @@
-package com.grekov.translate.presentation.langs.presenter
+package com.grekov.translate.presentation
 
 import android.view.View
 import assertCmd
@@ -21,8 +21,6 @@ import mock
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.given
-import org.junit.platform.runner.JUnitPlatform
-import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
@@ -31,7 +29,6 @@ import viewAssert
 import java.util.*
 import kotlin.test.assertEquals
 
-@RunWith(JUnitPlatform::class)
 class HistoryPresenterTest : Spek({
 
     var view: IHistoryView = mock()

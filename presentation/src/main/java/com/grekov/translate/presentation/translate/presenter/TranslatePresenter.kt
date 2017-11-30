@@ -40,6 +40,7 @@ class TranslatePresenter(view: ITranslateView,
                          val loadLangsByCodeUseCaseSingle: LoadLangsByCodeUseCaseSingle)
     : BasePresenter<ITranslateView, TranslatePresenter.TranslateState>(view, program), Component<TranslatePresenter.TranslateState> {
 
+    @SuppressLint("ParcelCreator")
     @Parcelize
     data class TranslateState(val langFrom: Lang,
                               val langTo: Lang,

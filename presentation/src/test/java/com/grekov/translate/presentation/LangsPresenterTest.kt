@@ -1,4 +1,4 @@
-package com.grekov.translate.presentation.langs.presenter
+package com.grekov.translate.presentation
 
 import com.grekov.translate.domain.elm.Idle
 import com.grekov.translate.domain.elm.Init
@@ -6,6 +6,8 @@ import com.grekov.translate.domain.interactor.lang.GetLangsUseCase
 import com.grekov.translate.domain.model.Lang
 import com.grekov.translate.domain.repository.ITranslateRepository
 import com.grekov.translate.presentation.core.elm.Program
+import com.grekov.translate.presentation.langs.presenter.Langs
+import com.grekov.translate.presentation.langs.presenter.LangsPresenter
 import com.grekov.translate.presentation.langs.view.ILangsView
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -36,6 +38,8 @@ class LangsPresenterTest {
         Mockito.`when`(repo.langsFromCloud)
                 .thenReturn(
                         Single.just(cloudLangs()))
+        Mockito.`when`(view.isAttached())
+                .thenReturn(true)
     }
 
     private fun initState(): LangsPresenter.LangsState {
@@ -66,6 +70,7 @@ class LangsPresenterTest {
         presenter.render(upd.first)
         val cacheMsg = presenter.call(upd.second).blockingGet()
 
+        Mockito.verify(view).isAttached()
         Mockito.verify(view).showUpdateTitle()
         Mockito.verify(view).showProgress()
         Mockito.verify(view).showErrorText(false)
@@ -80,6 +85,7 @@ class LangsPresenterTest {
         presenter.render(upd.first)
         val cloudMsg = presenter.call(upd.second).blockingGet()
 
+        Mockito.verify(view).isAttached()
         Mockito.verify(view).showUpdateTitle()
         Mockito.verify(view).hideProgress()
         Mockito.verify(view).showLangs(cacheLangs())
@@ -97,6 +103,7 @@ class LangsPresenterTest {
         presenter.render(upd.first)
         val cloudMsg = presenter.call(upd.second).blockingGet()
 
+        Mockito.verify(view).isAttached()
         Mockito.verify(view).showUpdateTitle()
         Mockito.verify(view).showProgress()
         Mockito.verify(view).showErrorText(false)
@@ -113,6 +120,7 @@ class LangsPresenterTest {
         presenter.render(upd.first)
         val idleMsg = presenter.call(upd.second).blockingGet()
 
+        Mockito.verify(view).isAttached()
         Mockito.verify(view).showTitle()
         Mockito.verify(view).hideProgress()
         Mockito.verify(view).showErrorText(false)
@@ -133,6 +141,7 @@ class LangsPresenterTest {
         presenter.render(upd.first)
         val idleMsg = presenter.call(upd.second).blockingGet()
 
+        Mockito.verify(view).isAttached()
         Mockito.verify(view).showTitle()
         Mockito.verify(view).hideProgress()
         Mockito.verify(view).showErrorText(true)
@@ -147,17 +156,4 @@ class LangsPresenterTest {
         Assert.assertEquals(listOf<Lang>(), state.langs)
     }
 
-    @Test
-    fun finalStateTest() {
-        presenter.onResume()
-
-        val state = program.getState()
-        Assert.assertEquals(true, state.isFrom)
-        Assert.assertEquals(false, state.isLoading)
-        Assert.assertEquals(false, state.isSyncing)
-        Assert.assertEquals("ru", state.langs[0].code)
-        Assert.assertEquals("Russian", state.langs[0].name)
-        Assert.assertEquals("de", state.langs[3].code)
-        Assert.assertEquals("German", state.langs[3].name)
-    }
 }

@@ -38,13 +38,11 @@ dependencies {
     compile dataDependencies.dagger
     kapt dataDependencies.daggerCompiler
 
-//    compile dataDependencies.gson
     compile dataDependencies.moshi
     compile dataDependencies.moshiKotlin
     compile dataDependencies.okhttpInterceptor
     compile dataDependencies.retrofit2
     compile dataDependencies.retrofit2RxJava
-//    compile dataDependencies.retrofit2Gson
     compile dataDependencies.retrofit2Moshi
     compile dataDependencies.timber
 

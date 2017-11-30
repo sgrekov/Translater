@@ -1,4 +1,4 @@
-package com.grekov.translate.presentation.langs.presenter
+package com.grekov.translate.presentation
 
 import android.view.View
 import assertBatch
@@ -24,15 +24,12 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
-import org.junit.platform.runner.JUnitPlatform
-import org.junit.runner.RunWith
 import org.mockito.Mockito
 import stateAssert
 import viewAssert
 import java.util.*
 import kotlin.test.assertEquals
 
-@RunWith(JUnitPlatform::class)
 class TranslatePresenterTest : Spek({
 
     var view: ITranslateView = mock()

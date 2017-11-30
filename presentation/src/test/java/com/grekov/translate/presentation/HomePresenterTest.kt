@@ -1,4 +1,4 @@
-package com.grekov.translate.presentation.langs.presenter
+package com.grekov.translate.presentation
 
 import assertCmd
 import cmdShould
@@ -18,15 +18,12 @@ import mock
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.given
-import org.junit.platform.runner.JUnitPlatform
-import org.junit.runner.RunWith
 import org.mockito.Mockito
 import stateAssert
 import viewAssert
 import java.util.*
 import kotlin.test.assertEquals
 
-@RunWith(JUnitPlatform::class)
 class HomePresenterTest : Spek({
 
     var view: IHomeView = mock()

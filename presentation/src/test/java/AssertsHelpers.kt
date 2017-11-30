@@ -3,14 +3,10 @@ import com.grekov.translate.domain.elm.BatchCmd
 import com.grekov.translate.domain.elm.Cmd
 import com.grekov.translate.domain.elm.Msg
 import com.grekov.translate.domain.elm.OneShotCmd
-import com.grekov.translate.presentation.core.elm.Component
-import com.grekov.translate.presentation.core.elm.State
-import com.grekov.translate.presentation.core.view.IBaseView
 import org.hamcrest.CoreMatchers
 import org.jetbrains.spek.api.dsl.SpecBody
 import org.jetbrains.spek.api.dsl.TestBody
 import org.junit.Assert
-import org.mockito.Mockito
 import kotlin.reflect.KClass
 
 
