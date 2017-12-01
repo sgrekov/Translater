@@ -6,4 +6,4 @@ made as supplementary app for blog post series about Elm Architecture in Android
 
 [Part 2](https://proandroiddev.com/taming-state-in-android-with-elm-architecture-and-kotlin-part-2-c709f75f7596)
 
-Part 3 TBA
+[Part 3](https://proandroiddev.com/taming-state-in-android-with-elm-architecture-and-kotlin-part-3-f37a7a630ec1)
