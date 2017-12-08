@@ -1,7 +1,6 @@
 package com.grekov.translate.presentation.langs.view.controller
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -27,12 +26,10 @@ import com.grekov.translate.presentation.translate.view.controller.TranslateCont
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
-import javax.inject.Provider
 
 class LangsController(b: Bundle) : BaseController(b), ILangsView {
 
-    @Inject lateinit var presenterProvider: Provider<LangsPresenter>
-    internal var langsPresenter: LangsPresenter? = null
+    @Inject lateinit var langsPresenter: LangsPresenter
     internal lateinit var adapter: LangsAdapter
     lateinit var langsListRV: RecyclerView
     lateinit var progressBar: ProgressBar
@@ -48,15 +45,6 @@ class LangsController(b: Bundle) : BaseController(b), ILangsView {
         isFrom = b.getBoolean(IS_FROM)
     }
 
-    override fun onContextAvailable(context: Context) {
-        super.onContextAvailable(context)
-        adapter = LangsAdapter(LayoutInflater.from(context), ArrayList())
-    }
-
-    override fun getPresenter(): IBasePresenter? {
-        return langsPresenter
-    }
-
     override val title: String
         get() = getString(R.string.langs_title)
 
@@ -67,10 +55,8 @@ class LangsController(b: Bundle) : BaseController(b), ILangsView {
                 .inject(this)
     }
 
-    override fun firstInitPresenter() {
-        if (langsPresenter == null) {
-            langsPresenter = presenterProvider.get()
-        }
+    override fun getPresenter(): IBasePresenter {
+        return langsPresenter
     }
 
     override val layoutId: Int = R.layout.langs_layout
@@ -81,6 +67,8 @@ class LangsController(b: Bundle) : BaseController(b), ILangsView {
         progressBar = view.findViewById(R.id.langs_list_pb) as ProgressBar
         errorTV = view.findViewById(R.id.langs_list_error_tv) as TextView
         titleTv = view.findViewById(R.id.history_title) as TextView
+
+        adapter = LangsAdapter(LayoutInflater.from(applicationContext), ArrayList())
 
         langsListRV.layoutManager = LinearLayoutManager(activity)
         langsListRV.adapter = adapter
@@ -118,7 +106,7 @@ class LangsController(b: Bundle) : BaseController(b), ILangsView {
     }
 
     override fun handleBack(): Boolean {
-        langsPresenter?.handleBack()
+        langsPresenter.handleBack()
         return false
     }
 
@@ -181,7 +169,7 @@ class LangsController(b: Bundle) : BaseController(b), ILangsView {
 
             @OnClick(R.id.lang_list_item)
             fun onRowClick() {
-                langsPresenter?.onLangClick(model!!)
+                langsPresenter.onLangClick(model!!)
             }
 
         }

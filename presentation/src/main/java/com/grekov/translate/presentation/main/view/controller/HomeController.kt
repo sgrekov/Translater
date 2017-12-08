@@ -20,17 +20,15 @@ import com.grekov.translate.presentation.main.view.IHomeView
 import com.grekov.translate.presentation.translate.view.controller.TranslateController
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx
 import javax.inject.Inject
-import javax.inject.Provider
 
 
 class HomeController : BaseController, IHomeView {
 
-    @Inject lateinit var presenterProvider: Provider<HomePresenter>
     @BindView(R.id.bottom_navigation) lateinit var bottomNavigationView: BottomNavigationViewEx
     internal lateinit var translateRouter: Router
     internal lateinit var historyRouter: Router
     internal lateinit var favoritesRouter: Router
-    internal var presenter: HomePresenter? = null
+    @Inject lateinit var presenter: HomePresenter
     @BindView(R.id.translate_container) lateinit var translateContainer: ViewGroup
     @BindView(R.id.history_container) lateinit var historyContainer: ViewGroup
     @BindView(R.id.favorites_container) lateinit var favoritesContainer: ViewGroup
@@ -55,9 +53,9 @@ class HomeController : BaseController, IHomeView {
 
     internal var menuListener = { item : MenuItem ->
         when (item.itemId) {
-            R.id.bottom_menu_translate -> presenter!!.translateSelect()
-            R.id.bottom_menu_history -> presenter!!.historySelect()
-            R.id.bottom_menu_favorites -> presenter!!.favoritesSelect()
+            R.id.bottom_menu_translate -> presenter.translateSelect()
+            R.id.bottom_menu_history -> presenter.historySelect()
+            R.id.bottom_menu_favorites -> presenter.favoritesSelect()
         }
         true
     }
@@ -69,18 +67,8 @@ class HomeController : BaseController, IHomeView {
 
     override val title: String = ""
 
-    override fun getPresenter(): IBasePresenter? {
+    override fun getPresenter(): IBasePresenter {
         return presenter
-    }
-
-    /**
-     * if we want our presenter translate survive config changes, we don't want it recreation via DI mechanism,
-     * hence DI provider translate the rescue
-     */
-    override fun firstInitPresenter() {
-        if (presenter == null) {
-            presenter = presenterProvider.get()
-        }
     }
 
 
@@ -121,6 +109,6 @@ class HomeController : BaseController, IHomeView {
     }
 
     fun onPhraseClick(model: Phrase) {
-        presenter!!.onPhraseClick(model)
+        presenter.onPhraseClick(model)
     }
 }

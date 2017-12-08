@@ -20,12 +20,10 @@ import com.grekov.translate.presentation.translate.presenter.TranslatePresenter
 import com.grekov.translate.presentation.translate.view.ITranslateView
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Provider
 
 class TranslateController : BaseController(), ITranslateView, LangsController.TargetLangSelectListener {
 
-    @Inject lateinit var presenterProvider: Provider<TranslatePresenter>
-    internal var translatePresenter: TranslatePresenter? = null
+    @Inject lateinit var translatePresenter: TranslatePresenter
     lateinit var langFromTv: TextView
     lateinit var langToTv: TextView
     lateinit var langArrowTv: TextView
@@ -43,7 +41,7 @@ class TranslateController : BaseController(), ITranslateView, LangsController.Ta
         retainViewMode = Controller.RetainViewMode.RETAIN_DETACH
     }
 
-    override fun getPresenter(): IBasePresenter? {
+    override fun getPresenter(): IBasePresenter {
         return translatePresenter
     }
 
@@ -78,17 +76,11 @@ class TranslateController : BaseController(), ITranslateView, LangsController.Ta
         saveToFavTv.setOnClickListener { view1 -> translatePresenter?.saveToFavClick() }
         removeFromFavTv.setOnClickListener { view1 -> translatePresenter?.removeFromFavClick() }
         sourceTextInputBinding = InputBinding(sourceTextEt)
-        translatePresenter?.addSourceTextChanges(sourceTextInputBinding)
-    }
-
-    override fun firstInitPresenter() {
-        if (translatePresenter == null) {
-            translatePresenter = presenterProvider.get()
-        }
+        translatePresenter.addSourceTextChanges(sourceTextInputBinding)
     }
 
     override fun onLangPicked(lang: Lang, isFrom: Boolean) {
-        translatePresenter?.onLangSelect(lang, isFrom)
+        translatePresenter.onLangSelect(lang, isFrom)
     }
 
     override fun onLangError() {
@@ -156,6 +148,6 @@ class TranslateController : BaseController(), ITranslateView, LangsController.Ta
     }
 
     fun setLang(selectedPhrase: Phrase) {
-        translatePresenter?.onPhraseSelect(selectedPhrase)
+        translatePresenter.onPhraseSelect(selectedPhrase)
     }
 }

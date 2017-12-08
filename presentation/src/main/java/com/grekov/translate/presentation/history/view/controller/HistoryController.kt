@@ -1,7 +1,6 @@
 package com.grekov.translate.presentation.history.view.controller
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -26,14 +25,12 @@ import com.grekov.translate.presentation.history.view.IHistoryView
 import com.grekov.translate.presentation.main.di.component.MainViewComponent
 import com.grekov.translate.presentation.main.view.controller.HomeController
 import javax.inject.Inject
-import javax.inject.Provider
 
 class HistoryController(bundle: Bundle) : BaseController(bundle), IHistoryView {
 
     internal var isFavorite: Boolean = false
 
-    @Inject lateinit var presenterProvider: Provider<HistoryPresenter>
-    var historyPresenter: HistoryPresenter? = null
+    @Inject lateinit var historyPresenter: HistoryPresenter
     @BindView(R.id.history_title) lateinit var titleTV: TextView
     @BindView(R.id.clear_history) lateinit var clearTV: TextView
     @BindView(R.id.empty_text) lateinit var emptyTV: TextView
@@ -53,7 +50,7 @@ class HistoryController(bundle: Bundle) : BaseController(bundle), IHistoryView {
         retainViewMode = Controller.RetainViewMode.RETAIN_DETACH
     }
 
-    override fun getPresenter(): IBasePresenter? {
+    override fun getPresenter(): IBasePresenter {
         return historyPresenter
     }
 
@@ -63,23 +60,15 @@ class HistoryController(bundle: Bundle) : BaseController(bundle), IHistoryView {
         this.getComponent(MainViewComponent::class.java).plusHistoryComponent(HistoryModule(this, isFavorite)).inject(this)
     }
 
-    override fun firstInitPresenter() {
-        if (historyPresenter == null) {
-            historyPresenter = presenterProvider.get()
-        }
-    }
-
     override val layoutId = R.layout.history_layout
 
-    override fun onContextAvailable(context: Context) {
-        super.onContextAvailable(context)
-        adapter = PhrasesAdapter(LayoutInflater.from(applicationContext), listOf())
-    }
-
     override fun onViewBound(view: View) {
-        clearTV.setOnClickListener { view1 -> historyPresenter?.clearClick() }
+        clearTV.setOnClickListener { view1 -> historyPresenter.clearClick() }
+
+        adapter = PhrasesAdapter(LayoutInflater.from(applicationContext), listOf())
+
         filterBinding = InputBinding(filterEt)
-        historyPresenter?.addFilterChanges(filterBinding)
+        historyPresenter.addFilterChanges(filterBinding)
         historyRv.layoutManager = LinearLayoutManager(activity)
         historyRv.adapter = adapter
     }

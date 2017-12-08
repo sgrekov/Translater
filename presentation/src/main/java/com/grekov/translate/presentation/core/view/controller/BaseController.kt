@@ -1,7 +1,6 @@
 package com.grekov.translate.presentation.core.view.controller
 
 
-import android.content.Context
 import android.os.Bundle
 import android.support.annotation.CallSuper
 import android.support.annotation.LayoutRes
@@ -20,52 +19,41 @@ abstract class BaseController : Controller, IBaseView {
 
     private var unbinder: Unbinder? = null
     private var restoredBundle: Bundle? = null
+    private var created: Boolean = false
 
     protected constructor() : super() {}
 
     protected constructor(args: Bundle?) : super(args) {}
 
     @CallSuper
-    override fun onContextAvailable(context: Context) {
-        setupComponent()
-    }
-
-    @CallSuper
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup): View {
         val view = inflater.inflate(layoutId, container, false)
         unbinder = ButterKnife.bind(this, view)
-        val created = presenterLazyInit()
-        onViewBound(view)
-        if (created) {
-            restoredBundle?.let { getPresenter()?.restore(it) }
-            restoredBundle = null
-            getPresenter()?.init()
+        if (!created) {
+            setupComponent()
         }
-        return view
-    }
 
-    private fun presenterLazyInit(): Boolean {
-        var created = false
-        if (getPresenter() == null) {
-            firstInitPresenter()
+        onViewBound(view)
+
+        if (!created) {
+            getPresenter().init()
             created = true
         }
-        return created
-    }
 
-    protected open fun firstInitPresenter() {
-        //override when needed
+        restoredBundle?.let { getPresenter().restore(it) }
+        restoredBundle = null
+        return view
     }
 
     @CallSuper
     override fun onAttach(view: View) {
-        getPresenter()?.onResume()
+        getPresenter().onResume()
     }
 
 
     @CallSuper
     override fun onDetach(view: View) {
-        getPresenter()?.onPause()
+        getPresenter().onPause()
     }
 
 
@@ -88,7 +76,7 @@ abstract class BaseController : Controller, IBaseView {
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {
-        getPresenter()?.saveState(outState)
+        getPresenter().saveState(outState)
         super.onSaveInstanceState(outState)
     }
 
@@ -108,7 +96,7 @@ abstract class BaseController : Controller, IBaseView {
     }
 
     override fun onDestroy() {
-        getPresenter()?.destroy()
+        getPresenter().destroy()
     }
 
     override fun handleBack(): Boolean {
