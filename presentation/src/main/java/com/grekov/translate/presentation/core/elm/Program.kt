@@ -98,7 +98,8 @@ class Program<S : State>(val outputScheduler: Scheduler) {
                 .observeOn(outputScheduler)
                 .subscribe({ msg ->
                     when (msg) {
-                        is Idle -> {}
+                        is Idle -> {
+                        }
                         is HighPriorityMsg -> highPriorityMsgQueue.addLast(msg)
                         else -> msgQueue.addLast(msg)
                     }
@@ -193,6 +194,13 @@ class Program<S : State>(val outputScheduler: Scheduler) {
             disposable?.dispose()
             disposableMap.put(useCaseStream.javaClass.canonicalName,
                     sub.subscribe { msg -> accept(msg) })
+        }
+    }
+
+    fun <T : Msg, P> removeSub(useCaseStream: ElmSubscription<T, P>) {
+        var disposable = disposableMap[useCaseStream.javaClass.canonicalName]
+        if (disposable?.isDisposed != true) {
+            disposable?.dispose()
         }
     }
 
