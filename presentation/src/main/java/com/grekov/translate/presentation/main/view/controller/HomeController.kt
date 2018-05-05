@@ -33,6 +33,10 @@ class HomeController : BaseController, IHomeView {
     @BindView(R.id.history_container) lateinit var historyContainer: ViewGroup
     @BindView(R.id.favorites_container) lateinit var favoritesContainer: ViewGroup
 
+    companion object {
+        const val TRANSLATE_TAG = "TRANSLATE_TAG"
+    }
+
     constructor() : super(Bundle()) {}
 
     constructor(b: Bundle) : super(b) {
@@ -80,10 +84,10 @@ class HomeController : BaseController, IHomeView {
 
     override fun showTranslate(selectedPhrase: Phrase?) {
         if (!translateRouter.hasRootController()) {
-            translateRouter.setRoot(RouterTransaction.with(TranslateController()).tag("TRANSLATE_TAG"))
+            translateRouter.setRoot(RouterTransaction.with(TranslateController()).tag(TRANSLATE_TAG))
         }
         if (selectedPhrase != null) {
-            (translateRouter.getControllerWithTag("TRANSLATE_TAG") as TranslateController).setLang(selectedPhrase)
+            (translateRouter.getControllerWithTag(TRANSLATE_TAG) as TranslateController).setLang(selectedPhrase)
         }
         translateContainer.visibility = View.VISIBLE
         historyContainer.visibility = View.GONE

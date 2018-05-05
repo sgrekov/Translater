@@ -2,9 +2,14 @@ package com.grekov.translate.presentation.translate.presenter
 
 import android.annotation.SuppressLint
 import android.os.Parcelable
-import android.view.View
 import com.grekov.translate.domain.IAppPreferencesManager
-import com.grekov.translate.domain.elm.*
+import com.grekov.translate.domain.elm.BatchCmd
+import com.grekov.translate.domain.elm.Cmd
+import com.grekov.translate.domain.elm.ErrorMsg
+import com.grekov.translate.domain.elm.Idle
+import com.grekov.translate.domain.elm.Init
+import com.grekov.translate.domain.elm.Msg
+import com.grekov.translate.domain.elm.None
 import com.grekov.translate.domain.interactor.history.CheckFavoriteUseCase
 import com.grekov.translate.domain.interactor.history.MakeFavoriteParams
 import com.grekov.translate.domain.interactor.history.MakeFavoriteUseCase
@@ -13,9 +18,15 @@ import com.grekov.translate.domain.interactor.translate.MakeTranslateUseCase
 import com.grekov.translate.domain.model.Lang
 import com.grekov.translate.domain.model.Phrase
 import com.grekov.translate.domain.utils.getLangLiteral
-import com.grekov.translate.presentation.core.elm.*
+import com.grekov.translate.presentation.Navigator
+import com.grekov.translate.presentation.core.elm.Component
+import com.grekov.translate.presentation.core.elm.InputBinding
+import com.grekov.translate.presentation.core.elm.Program
+import com.grekov.translate.presentation.core.elm.Screen
+import com.grekov.translate.presentation.core.elm.State
+import com.grekov.translate.presentation.core.elm.inView
 import com.grekov.translate.presentation.core.presenter.BasePresenter
-import com.grekov.translate.presentation.langs.presenter.Langs
+import com.grekov.translate.presentation.langs.view.controller.LangsController
 import com.grekov.translate.presentation.translate.view.ITranslateView
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
@@ -23,7 +34,8 @@ import io.reactivex.Single
 import io.reactivex.functions.Consumer
 import kotlinx.android.parcel.Parcelize
 import timber.log.Timber
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 @SuppressLint("ParcelCreator")
@@ -31,26 +43,30 @@ import java.util.concurrent.TimeUnit
 data class Translate(val stub: Unit = Unit) : Screen(), Parcelable
 
 
-class TranslatePresenter(view: ITranslateView,
-                         program: Program<TranslateState>,
-                         val appPreferencesManager: IAppPreferencesManager,
-                         val translateUseCase: MakeTranslateUseCase,
-                         val makeFavoriteUseCase: MakeFavoriteUseCase,
-                         val checkFavoriteUseCase: CheckFavoriteUseCase,
-                         val loadLangsByCodeUseCaseSingle: LoadLangsByCodeUseCaseSingle)
-    : BasePresenter<ITranslateView, TranslatePresenter.TranslateState>(view, program), Component<TranslatePresenter.TranslateState> {
+class TranslatePresenter(
+    view: ITranslateView,
+    program: Program<TranslateState>,
+    val appPreferencesManager: IAppPreferencesManager,
+    val navigator: Navigator,
+    val translateUseCase: MakeTranslateUseCase,
+    val makeFavoriteUseCase: MakeFavoriteUseCase,
+    val checkFavoriteUseCase: CheckFavoriteUseCase,
+    val loadLangsByCodeUseCaseSingle: LoadLangsByCodeUseCaseSingle
+) : BasePresenter<ITranslateView, TranslatePresenter.TranslateState>(view, program),
+    Component<TranslatePresenter.TranslateState> {
 
     @SuppressLint("ParcelCreator")
     @Parcelize
-    data class TranslateState(val langFrom: Lang,
-                              val langTo: Lang,
-                              val currentText: String = "",
-                              val phrase: Phrase? = null,
-                              val isLoading: Boolean = true,
-                              val isFavorite: Boolean = false,
-                              val drop: Boolean = false,
-                              val navigateTo: Screen,
-                              override val screen: Screen = Translate()) : State(screen), Parcelable
+    data class TranslateState(
+        val langFrom: Lang,
+        val langTo: Lang,
+        val currentText: String = "",
+        val phrase: Phrase? = null,
+        val isLoading: Boolean = true,
+        val isFavorite: Boolean = false,
+        val drop: Boolean = false,
+        override val screen: Screen = Translate()
+    ) : State(screen), Parcelable
 
     data class NavigateToLangsMsg(val from: Boolean) : Msg()
     data class ChangeLangsMsg(val lang: Lang, val from: Boolean) : Msg()
@@ -73,6 +89,8 @@ class TranslatePresenter(view: ITranslateView,
     data class MakeNotFavoriteCmd(val text: String, val from: Lang, val to: Lang) : Cmd()
     data class CheckFavoriteCmd(val text: String, val from: Lang, val to: Lang) : Cmd()
     data class GetLangsByCodeCmd(val langsLiteral: String) : Cmd()
+    data class GoToLangsCmd(val from: Boolean, val langsSelectCallback: LangsController.TargetLangSelectListener) :
+        Cmd()
 
     override fun initialState(): TranslateState {
         val (langFrom, langTo) = if (Locale.getDefault().language == "ru") {
@@ -80,7 +98,7 @@ class TranslatePresenter(view: ITranslateView,
         } else {
             Pair(Lang("en", "English"), Lang("ru", "Russian"))
         }
-        return TranslateState(langFrom = langFrom, langTo = langTo, navigateTo = Translate())
+        return TranslateState(langFrom = langFrom, langTo = langTo)
     }
 
     override fun onInit() {
@@ -92,9 +110,7 @@ class TranslatePresenter(view: ITranslateView,
 
     override fun update(msg: Msg, state: TranslateState): Pair<TranslateState, Cmd> {
         return when (msg) {
-            is Init -> {
-                Pair(state.copy(isLoading = true), RetrieveLangsFromPrefsCmd)
-            }
+            is Init -> state.copy(isLoading = true) to RetrieveLangsFromPrefsCmd
             is ChangeLangsMsg -> {
                 val newState = if (msg.from) {
                     if (state.langFrom != msg.lang) {
@@ -109,130 +125,104 @@ class TranslatePresenter(view: ITranslateView,
                         state
                     }
                 }
-                Pair(newState, if (state === newState) {
-                    None
-                } else {
-                    BatchCmd(
+                Pair(
+                    newState, if (state === newState) {
+                        None
+                    } else {
+                        BatchCmd(
                             listOf(
-                                    SaveCurrentLangsCmd(newState.langFrom, newState.langTo),
-                                    CheckFavoriteCmd(newState.currentText, newState.langFrom, newState.langTo),
-                                    TranslateCmd(newState.currentText, newState.langFrom, newState.langTo)
+                                SaveCurrentLangsCmd(newState.langFrom, newState.langTo),
+                                CheckFavoriteCmd(newState.currentText, newState.langFrom, newState.langTo),
+                                TranslateCmd(newState.currentText, newState.langFrom, newState.langTo)
                             )
-                    )
-                })
+                        )
+                    }
+                )
             }
             is LangsFromPrefsMsg -> {
-                Pair(state.copy(isLoading = false, langFrom = msg.from, langTo = msg.to), None)
+                state.copy(isLoading = false, langFrom = msg.from, langTo = msg.to) to None
             }
             is NavigateToLangsMsg -> {
-                Pair(state.copy(navigateTo = if (msg.from) Langs(true) else Langs(false)), OneShotCmd(ResetNavigationMsg))
-            }
-            is ResetNavigationMsg -> {
-                Pair(state.copy(navigateTo = Translate()), None)
+                state to GoToLangsCmd(msg.from, viewReference.get() as LangsController.TargetLangSelectListener)
             }
             is RotateLangsMsg -> {
                 val newState = state.copy(langFrom = state.langTo, langTo = state.langFrom)
-                Pair(newState,
+                newState to
                         BatchCmd(
-                                listOf(
-                                        SaveCurrentLangsCmd(newState.langFrom, newState.langTo),
-                                        CheckFavoriteCmd(newState.currentText, newState.langFrom, newState.langTo),
-                                        TranslateCmd(newState.currentText, newState.langFrom, newState.langTo)
-                                )
-                        ))
+                            listOf(
+                                SaveCurrentLangsCmd(newState.langFrom, newState.langTo),
+                                CheckFavoriteCmd(newState.currentText, newState.langFrom, newState.langTo),
+                                TranslateCmd(newState.currentText, newState.langFrom, newState.langTo)
+                            )
+                        )
             }
-            is TextChangeMsg -> {
-                Pair(state.copy(currentText = msg.text),
-                        CheckFavoriteCmd(msg.text, state.langFrom, state.langTo))
-            }
+            is TextChangeMsg -> state.copy(currentText = msg.text) to CheckFavoriteCmd(
+                msg.text,
+                state.langFrom,
+                state.langTo
+            )
             is TranslateMsg -> {
                 if (state.currentText.isNotBlank()) {
-                    Pair(state.copy(isLoading = true),
-                            TranslateCmd(state.currentText, state.langFrom, state.langTo))
+                    state.copy(isLoading = true) to TranslateCmd(state.currentText, state.langFrom, state.langTo)
                 } else {
-                    Pair(state, None)
+                    state to None
                 }
             }
             is TranslateResultMsg -> {
-                Pair(state.copy(isLoading = false, phrase = msg.text), None)
+                state.copy(isLoading = false, phrase = msg.text) to None
             }
-            is DropTextMsg -> {
-                Pair(state.copy(currentText = "", phrase = null, isFavorite = false),
-                        None)
-            }
-            is SaveToFavoritesMsg -> {
-                Pair(state, MakeFavoriteCmd(state.currentText, state.langFrom, state.langTo))
-            }
-            is RemoveFromFavoritesMsg -> {
-                Pair(state, MakeNotFavoriteCmd(state.currentText, state.langFrom, state.langTo))
-            }
+            is DropTextMsg -> state.copy(currentText = "", phrase = null, isFavorite = false) to None
+            is SaveToFavoritesMsg -> state to MakeFavoriteCmd(state.currentText, state.langFrom, state.langTo)
+            is RemoveFromFavoritesMsg -> state to MakeNotFavoriteCmd(state.currentText, state.langFrom, state.langTo)
             is FavoriteCheckResultMsg -> {
                 if (state.currentText == msg.phrase && state.langFrom == msg.from && state.langTo == msg.to) {
-                    Pair(state.copy(isFavorite = msg.favorite), None)
+                    state.copy(isFavorite = msg.favorite) to None
                 } else {
-                    Pair(state, None)
+                    state to None
                 }
             }
-            is PhraseSelectMsg -> {
-                Pair(state.copy(
-                        currentText = msg.phrase.source,
-                        phrase = msg.phrase,
-                        isFavorite = msg.phrase.favorite),
-                        GetLangsByCodeCmd(msg.phrase.langsLiteral))
-            }
-            is LangsByCodeMsg -> {
-                Pair(state.copy(langFrom = msg.from, langTo = msg.to), None)
-            }
+            is PhraseSelectMsg ->
+                state.copy(
+                    currentText = msg.phrase.source,
+                    phrase = msg.phrase,
+                    isFavorite = msg.phrase.favorite
+                ) to GetLangsByCodeCmd(msg.phrase.langsLiteral)
+            is LangsByCodeMsg -> state.copy(langFrom = msg.from, langTo = msg.to) to None
             is ErrorMsg -> {
                 Timber.e(msg.err, "cmd${msg.cmd}")
-                Pair(state.copy(isLoading = false), None)
+                state.copy(isLoading = false) to None
             }
-            else -> Pair(state, None)
+            else -> state to None
         }
     }
 
     override fun render(state: TranslateState) {
-        val view = viewReference.get() ?: return
-        if (!view.isAttached()) return
+        view()?.let { view ->
+            state.apply {
+                view.setFromLang(langFrom.name)
+                view.setToLang(langTo.name)
+                view.showFromText(!isLoading)
+                view.showToText(!isLoading)
+                view.showProgress(isLoading)
+                view.showSourceText(!isLoading)
+                view.showTranslateText(!isLoading)
+                view.showFavoriteBtn(!isLoading)
 
-        state.apply {
-            if (navigateTo is Langs) {
-                view.navigate(navigateTo.from)
-                return
-            }
-
-            view.setFromLang(langFrom.name)
-            view.setToLang(langTo.name)
-
-            if (isLoading) {
-                view.triggerFromText(false)
-                view.triggerToText(false)
-                view.triggerProgress(View.VISIBLE)
-                view.triggerSource(View.GONE)
-                view.triggerTranslate(View.GONE)
-                view.triggerFavoriteBtn(View.GONE)
-            } else {
-                view.triggerFromText(true)
-                view.triggerToText(true)
-                view.triggerSource(View.VISIBLE)
-                view.triggerTranslate(View.VISIBLE)
-                view.triggerProgress(View.GONE)
-                view.triggerFavoriteBtn(View.VISIBLE)
-
-                phrase?.let {
-                    view.setSource(it.source)
-                    view.setTranslate(it.translate ?: "")
+                if (!isLoading) {
+                    phrase?.let {
+                        view.setSourceText(it.source)
+                        view.setTranslatedText(it.translate ?: "")
+                    }
+                    view.setFavoriteBtn(isFavorite)
                 }
 
-                view.setFavoriteBtn(isFavorite)
-            }
+                view.setText(currentText)
+                if (phrase == null) {
+                    view.setSourceText("")
+                    view.setTranslatedText("")
+                }
 
-            view.setText(currentText)
-            if (phrase == null) {
-                view.setSource("")
-                view.setTranslate("")
             }
-
         }
     }
 
@@ -244,20 +234,25 @@ class TranslatePresenter(view: ITranslateView,
                 appPreferencesManager.saveLangs(cmd.from, cmd.to).toSingle { Idle }
             is TranslateCmd ->
                 translateUseCase.getSingle(Phrase(cmd.text, null, getLangLiteral(cmd.from, cmd.to), created = Date()))
-                        .map { phrase -> TranslateResultMsg(phrase) }
+                    .map { phrase -> TranslateResultMsg(phrase) }
             is MakeFavoriteCmd ->
                 makeFavoriteUseCase.getCompletable(MakeFavoriteParams(cmd.text, cmd.from, cmd.to, true))
-                        .toSingle { FavoriteCheckResultMsg(cmd.text, cmd.from, cmd.to, true) }
+                    .toSingle { FavoriteCheckResultMsg(cmd.text, cmd.from, cmd.to, true) }
             is MakeNotFavoriteCmd ->
                 makeFavoriteUseCase.getCompletable(MakeFavoriteParams(cmd.text, cmd.from, cmd.to, false))
-                        .toSingle { FavoriteCheckResultMsg(cmd.text, cmd.from, cmd.to, false) }
+                    .toSingle { FavoriteCheckResultMsg(cmd.text, cmd.from, cmd.to, false) }
             is CheckFavoriteCmd -> {
                 checkFavoriteUseCase.getSingle(MakeFavoriteParams(cmd.text, cmd.from, cmd.to, false))
-                        .map { result -> FavoriteCheckResultMsg(cmd.text, cmd.from, cmd.to, result) }
+                    .map { result -> FavoriteCheckResultMsg(cmd.text, cmd.from, cmd.to, result) }
             }
             is GetLangsByCodeCmd -> {
                 loadLangsByCodeUseCaseSingle.getSingle(cmd.langsLiteral)
-                        .map { (first, second) -> LangsByCodeMsg(from = first, to = second) }
+                    .map { (first, second) -> LangsByCodeMsg(from = first, to = second) }
+            }
+            is GoToLangsCmd -> {
+                inView {
+                    navigator.goToLangs(cmd.from, cmd.langsSelectCallback)
+                }
             }
             else -> Single.just(Idle)
         }
@@ -306,16 +301,16 @@ class TranslatePresenter(view: ITranslateView,
     fun addSourceTextChanges(sourceInputBinding: InputBinding) {
         sourceInputBinding.addTransformer(ObservableTransformer { textObservable: Observable<CharSequence> ->
             textObservable
-                    .debounce(500, TimeUnit.MILLISECONDS)
-                    .doOnNext({ text ->
-                        program.accept(TextChangeMsg(text.toString()))
-                    })
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .doOnNext({ text ->
+                    program.accept(TextChangeMsg(text.toString()))
+                })
         })
 
         sourceInputBinding
-                .subscribe(Consumer { _ ->
-                    program.accept(TranslateMsg)
-                })
+            .subscribe(Consumer { _ ->
+                program.accept(TranslateMsg)
+            })
 
     }
 }

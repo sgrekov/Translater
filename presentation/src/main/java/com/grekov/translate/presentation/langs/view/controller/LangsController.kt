@@ -24,7 +24,7 @@ import com.grekov.translate.presentation.langs.view.controller.LangsController.L
 import com.grekov.translate.presentation.main.di.component.MainViewComponent
 import com.grekov.translate.presentation.translate.view.controller.TranslateController
 import timber.log.Timber
-import java.util.*
+import java.util.ArrayList
 import javax.inject.Inject
 
 class LangsController(b: Bundle) : BaseController(b), ILangsView {
@@ -37,8 +37,10 @@ class LangsController(b: Bundle) : BaseController(b), ILangsView {
     lateinit var titleTv: TextView
     internal var isFrom: Boolean
 
-    constructor(translateController: TranslateController, isFrom: Boolean) : this(BundleBuilder(Bundle()).putBoolean(IS_FROM, isFrom).build()) {
-        targetController = translateController
+    constructor(callback: TargetLangSelectListener, isFrom: Boolean) : this(BundleBuilder(Bundle()).putBoolean(IS_FROM, isFrom).build()) {
+        if (callback is TranslateController){
+            targetController = callback
+        }
     }
 
     init {

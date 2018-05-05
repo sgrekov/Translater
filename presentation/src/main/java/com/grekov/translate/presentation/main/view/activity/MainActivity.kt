@@ -7,9 +7,9 @@ import com.bluelinelabs.conductor.Conductor
 import com.bluelinelabs.conductor.Router
 import com.bluelinelabs.conductor.RouterTransaction
 import com.grekov.translate.R
-import com.grekov.translate.presentation.core.elm.Start
 import com.grekov.translate.presentation.core.di.component.AppComponent
 import com.grekov.translate.presentation.core.di.contract.HasComponent
+import com.grekov.translate.presentation.core.elm.Start
 import com.grekov.translate.presentation.core.elm.TimeTraveller
 import com.grekov.translate.presentation.core.view.activity.BaseActivity
 import com.grekov.translate.presentation.main.di.component.DaggerMainViewComponent
@@ -57,6 +57,7 @@ class MainActivity : BaseActivity(), HasComponent<MainViewComponent> {
     override fun setupComponent(appComponent: AppComponent) {
         component = DaggerMainViewComponent.builder()
                 .appComponent(appComponent)
+                .activityModule(MainViewComponent.ActivityModule(this))
                 .build()
         component.inject(this)
     }

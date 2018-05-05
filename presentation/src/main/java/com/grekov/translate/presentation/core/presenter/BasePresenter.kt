@@ -12,7 +12,8 @@ import io.reactivex.disposables.Disposable
 import timber.log.Timber
 import java.lang.ref.WeakReference
 
-abstract class BasePresenter<V : IBaseView, S : State>(view: V, val program : Program<S>) : IBasePresenter, Component<S> {
+abstract class BasePresenter<V : IBaseView, S : State>(view: V, val program: Program<S>) : IBasePresenter,
+    Component<S> {
 
     protected val viewReference: WeakReference<V> = WeakReference(view)
     private val allSubscriptions = CompositeDisposable()
@@ -27,7 +28,7 @@ abstract class BasePresenter<V : IBaseView, S : State>(view: V, val program : Pr
         }
     }
 
-    abstract fun initialState() : S
+    abstract fun initialState(): S
 
     protected open fun onInit() {
         //template method
@@ -51,6 +52,12 @@ abstract class BasePresenter<V : IBaseView, S : State>(view: V, val program : Pr
         onDestroy()
     }
 
+    fun view(): V? {
+        val view = viewReference.get() ?: return null
+        if (!view.isAttached()) return null
+        return view
+    }
+
 
     protected open fun onDestroy() {
         //template method
@@ -68,7 +75,7 @@ abstract class BasePresenter<V : IBaseView, S : State>(view: V, val program : Pr
      * But if you use more that one instances of the same presenter class, then you need to provide unique key
      * in order to persist correct state of presenter
      */
-    open fun getBundleKey() : String {
+    open fun getBundleKey(): String {
         return ""
     }
 

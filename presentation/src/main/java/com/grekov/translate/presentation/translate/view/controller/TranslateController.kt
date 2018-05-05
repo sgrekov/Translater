@@ -5,12 +5,11 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.bluelinelabs.conductor.Controller
-import com.bluelinelabs.conductor.RouterTransaction
-import com.bluelinelabs.conductor.changehandler.VerticalChangeHandler
 import com.grekov.translate.R
 import com.grekov.translate.domain.model.Lang
 import com.grekov.translate.domain.model.Phrase
 import com.grekov.translate.presentation.core.elm.InputBinding
+import com.grekov.translate.presentation.core.framework.show
 import com.grekov.translate.presentation.core.presenter.IBasePresenter
 import com.grekov.translate.presentation.core.view.controller.BaseController
 import com.grekov.translate.presentation.langs.view.controller.LangsController
@@ -87,11 +86,11 @@ class TranslateController : BaseController(), ITranslateView, LangsController.Ta
 
     }
 
-    override fun triggerFromText(enable: Boolean) {
+    override fun showFromText(enable: Boolean) {
         langFromTv.isEnabled = enable
     }
 
-    override fun triggerToText(enabled: Boolean) {
+    override fun showToText(enabled: Boolean) {
         langToTv.isEnabled = enabled
     }
 
@@ -103,38 +102,32 @@ class TranslateController : BaseController(), ITranslateView, LangsController.Ta
         langToTv.text = langName
     }
 
-    override fun navigate(from: Boolean) {
-        parentController?.router?.pushController(RouterTransaction.with(LangsController(this, from))
-                        .pushChangeHandler(VerticalChangeHandler())
-                        .popChangeHandler(VerticalChangeHandler()))
-    }
-
     override fun setText(text: String) {
         sourceTextInputBinding.bindInput(text)
     }
 
-    override fun triggerProgress(visibility: Int) {
-        loadingPB.visibility = visibility
+    override fun showProgress(show: Boolean) {
+        loadingPB.show(show)
     }
 
-    override fun triggerFavoriteBtn(visibility: Int) {
-        saveToFavTv.visibility = visibility
+    override fun showFavoriteBtn(show: Boolean) {
+        saveToFavTv.show(show)
     }
 
-    override fun setSource(source: String) {
+    override fun setSourceText(source: String) {
         textTranscriptionTv.text = source
     }
 
-    override fun setTranslate(translate: String) {
+    override fun setTranslatedText(translate: String) {
         translatedTextTv.text = translate
     }
 
-    override fun triggerSource(visibility: Int) {
-        textTranscriptionTv.visibility = visibility
+    override fun showSourceText(show: Boolean) {
+        textTranscriptionTv.show(show)
     }
 
-    override fun triggerTranslate(visibility: Int) {
-        translatedTextTv.visibility = visibility
+    override fun showTranslateText(show: Boolean) {
+        translatedTextTv.show(show)
     }
 
     override fun setFavoriteBtn(favorite: Boolean) {

@@ -5,6 +5,7 @@ import com.grekov.translate.domain.interactor.history.CheckFavoriteUseCase
 import com.grekov.translate.domain.interactor.history.MakeFavoriteUseCase
 import com.grekov.translate.domain.interactor.lang.LoadLangsByCodeUseCaseSingle
 import com.grekov.translate.domain.interactor.translate.MakeTranslateUseCase
+import com.grekov.translate.presentation.Navigator
 import com.grekov.translate.presentation.core.di.scope.PerScreen
 import com.grekov.translate.presentation.core.elm.Program
 import com.grekov.translate.presentation.core.elm.TimeTraveller
@@ -21,6 +22,7 @@ class TranslateModule(internal var view: ITranslateView) {
     @PerScreen
     fun provideTranslatePresenter(appPreferencesManager: IAppPreferencesManager,
                                   timeTraveller : TimeTraveller,
+                                  navigator: Navigator,
                                   makeTranslateUseCase: MakeTranslateUseCase,
                                   makeFavoriteUseCase: MakeFavoriteUseCase,
                                   checkFavoriteUseCase: CheckFavoriteUseCase,
@@ -29,6 +31,7 @@ class TranslateModule(internal var view: ITranslateView) {
                 view,
                 Program(AndroidSchedulers.mainThread(), timeTraveller),
                 appPreferencesManager,
+                navigator,
                 makeTranslateUseCase,
                 makeFavoriteUseCase,
                 checkFavoriteUseCase,

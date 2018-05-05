@@ -1,6 +1,13 @@
 package com.grekov.translate.presentation.core.elm
 
-import com.grekov.translate.domain.elm.*
+import com.grekov.translate.domain.elm.BatchCmd
+import com.grekov.translate.domain.elm.Cmd
+import com.grekov.translate.domain.elm.ErrorMsg
+import com.grekov.translate.domain.elm.HighPriorityMsg
+import com.grekov.translate.domain.elm.Idle
+import com.grekov.translate.domain.elm.Msg
+import com.grekov.translate.domain.elm.None
+import com.grekov.translate.domain.elm.OneShotCmd
 import com.grekov.translate.domain.interactor.base.ElmSubscription
 import com.grekov.translate.presentation.core.utils.lazyLog
 import com.jakewharton.rxrelay2.BehaviorRelay
@@ -12,7 +19,7 @@ import io.reactivex.schedulers.Schedulers
 import paperparcel.PaperParcel
 import paperparcel.PaperParcelable
 import timber.log.Timber
-import java.util.*
+import java.util.ArrayDeque
 
 sealed class AbstractState(open val screen: Screen)
 @PaperParcel
@@ -157,7 +164,7 @@ class Program<S : State>(val outputScheduler: Scheduler) {
     fun accept(msg: Msg) {
         if (timeTraveller?.adventureMode == true) return
 
-        if (msg is HighPriorityMsg) {
+        if (msg is HighPriorityMsg) {1
             highPriorityMsgQueue.addLast(msg)
         } else {
             msgQueue.addLast(msg)
