@@ -1,6 +1,5 @@
 package com.grekov.translate.presentation
 
-import android.view.View
 import assertBatch
 import assertCmd
 import cmdShould
@@ -15,7 +14,6 @@ import com.grekov.translate.domain.model.Lang
 import com.grekov.translate.domain.model.Phrase
 import com.grekov.translate.presentation.core.elm.Program
 import com.grekov.translate.presentation.core.elm.TimeTraveller
-import com.grekov.translate.presentation.translate.presenter.Translate
 import com.grekov.translate.presentation.translate.presenter.TranslatePresenter
 import com.grekov.translate.presentation.translate.view.ITranslateView
 import io.reactivex.schedulers.Schedulers
@@ -26,8 +24,7 @@ import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.mockito.Mockito
 import stateAssert
-import viewAssert
-import java.util.*
+import java.util.Date
 import kotlin.test.assertEquals
 
 class TranslatePresenterTest : Spek({
@@ -38,10 +35,12 @@ class TranslatePresenterTest : Spek({
     val makeFavUseCase: MakeFavoriteUseCase = mock()
     val checkFavUseCase: CheckFavoriteUseCase = mock()
     val loadLangsUseCaseSingle: LoadLangsByCodeUseCaseSingle = mock()
+    val navigator : Navigator = mock()
     var translatePresenter = TranslatePresenter(
             view,
             Program(Schedulers.trampoline(), TimeTraveller()),
             appPrefs,
+        navigator,
             makeTranslateUseCase,
             makeFavUseCase,
             checkFavUseCase,
@@ -62,8 +61,7 @@ class TranslatePresenterTest : Spek({
         given("translate screen init ", {
             val initialState = TranslatePresenter.TranslateState(
                     langFrom = Lang("ru", "russian"),
-                    langTo = Lang("en", "english"),
-                    navigateTo = Translate())
+                    langTo = Lang("en", "english"))
 
             val (stateAfterInit, cmdAfterInit) =
                     translatePresenter.update(
@@ -72,25 +70,6 @@ class TranslatePresenterTest : Spek({
 
             stateAssert("", {
                 assertEquals(initialState.copy(isLoading = true), stateAfterInit)
-            })
-
-            viewAssert("view after phrases loaded", {
-                translatePresenter.render(stateAfterInit)
-
-                Mockito.verify(view).isAttached()
-                Mockito.verify(view).showFromText(false)
-                Mockito.verify(view).showToText(false)
-                Mockito.verify(view).showProgress(View.VISIBLE)
-                Mockito.verify(view).showSourceLang(View.GONE)
-                Mockito.verify(view).setSourceText("")
-                Mockito.verify(view).showTranslateBtn(View.GONE)
-                Mockito.verify(view).setTranslatedText("")
-                Mockito.verify(view).setText("")
-                Mockito.verify(view).setFromLang("russian")
-                Mockito.verify(view).setToLang("english")
-                Mockito.verify(view).showFavoriteBtn(View.GONE)
-                Mockito.verifyNoMoreInteractions(view)
-                Mockito.reset(view)
             })
 
             cmdShould("cmd after translate init", {
@@ -111,25 +90,6 @@ class TranslatePresenterTest : Spek({
                             stateAfterPrefsLangs)
                 })
 
-                viewAssert("view after langs loaded from prefs", {
-                    translatePresenter.render(stateAfterPrefsLangs)
-
-                    Mockito.verify(view).isAttached()
-                    Mockito.verify(view).showFromText(true)
-                    Mockito.verify(view).showToText(true)
-                    Mockito.verify(view).showProgress(View.GONE)
-                    Mockito.verify(view).showSourceLang(View.VISIBLE)
-                    Mockito.verify(view).setSourceText("")
-                    Mockito.verify(view).showTranslateBtn(View.VISIBLE)
-                    Mockito.verify(view).setTranslatedText("")
-                    Mockito.verify(view).setText("")
-                    Mockito.verify(view).setFromLang("english")
-                    Mockito.verify(view).setToLang("russian")
-                    Mockito.verify(view).showFavoriteBtn(View.VISIBLE)
-                    Mockito.verify(view).setFavoriteBtn(false)
-                    Mockito.verifyNoMoreInteractions(view)
-                })
-
                 cmdShould("cmd after langs loaded from prefs", {
                     assertCmd(cmdAfterPrefsLangs, None::class)
                 })
@@ -144,25 +104,6 @@ class TranslatePresenterTest : Spek({
                         assertEquals(stateAfterPrefsLangs.
                                 copy(currentText = "cat"),
                                 stateAfterTextChange)
-                    })
-
-                    viewAssert("view after text change", {
-                        translatePresenter.render(stateAfterTextChange)
-
-                        Mockito.verify(view).isAttached()
-                        Mockito.verify(view).showFromText(true)
-                        Mockito.verify(view).showToText(true)
-                        Mockito.verify(view).showProgress(View.GONE)
-                        Mockito.verify(view).showSourceLang(View.VISIBLE)
-                        Mockito.verify(view).setSourceText("")
-                        Mockito.verify(view).showTranslateBtn(View.VISIBLE)
-                        Mockito.verify(view).setTranslatedText("")
-                        Mockito.verify(view).setText("cat")
-                        Mockito.verify(view).setFromLang("english")
-                        Mockito.verify(view).setToLang("russian")
-                        Mockito.verify(view).showFavoriteBtn(View.VISIBLE)
-                        Mockito.verify(view).setFavoriteBtn(false)
-                        Mockito.verifyNoMoreInteractions(view)
                     })
 
                     cmdShould("cmd after text input", {
@@ -185,24 +126,6 @@ class TranslatePresenterTest : Spek({
                                     stateAfterFavCheck)
                         })
 
-                        viewAssert("view after text change", {
-                            translatePresenter.render(stateAfterFavCheck)
-
-                            Mockito.verify(view).isAttached()
-                            Mockito.verify(view).showFromText(true)
-                            Mockito.verify(view).showToText(true)
-                            Mockito.verify(view).showProgress(View.GONE)
-                            Mockito.verify(view).showSourceLang(View.VISIBLE)
-                            Mockito.verify(view).setSourceText("")
-                            Mockito.verify(view).showTranslateBtn(View.VISIBLE)
-                            Mockito.verify(view).setTranslatedText("")
-                            Mockito.verify(view).setText("cat")
-                            Mockito.verify(view).setFromLang("english")
-                            Mockito.verify(view).setToLang("russian")
-                            Mockito.verify(view).showFavoriteBtn(View.VISIBLE)
-                            Mockito.verify(view).setFavoriteBtn(true)
-                            Mockito.verifyNoMoreInteractions(view)
-                        })
 
                         cmdShould("cmd after fav check", {
                             assertCmd(cmdAfterFavCheck, None::class)
@@ -221,24 +144,6 @@ class TranslatePresenterTest : Spek({
                                     stateAfterStartTranslate)
                         })
 
-                        viewAssert("view after start translate", {
-                            translatePresenter.render(stateAfterStartTranslate)
-
-                            Mockito.verify(view).isAttached()
-                            Mockito.verify(view).showFromText(false)
-                            Mockito.verify(view).showToText(false)
-                            Mockito.verify(view).showProgress(View.VISIBLE)
-                            Mockito.verify(view).showSourceLang(View.GONE)
-                            Mockito.verify(view).showTranslateBtn(View.GONE)
-                            Mockito.verify(view).setFromLang("english")
-                            Mockito.verify(view).setToLang("russian")
-                            Mockito.verify(view).setText("cat")
-                            Mockito.verify(view).setSourceText("")
-                            Mockito.verify(view).setTranslatedText("")
-                            Mockito.verify(view).showFavoriteBtn(View.GONE)
-                            Mockito.verifyNoMoreInteractions(view)
-                        })
-
                         cmdShould("cmd after start translate", {
                             assertCmd(cmdAfterStartTranslate, TranslatePresenter.TranslateCmd::class)
                         })
@@ -255,25 +160,6 @@ class TranslatePresenterTest : Spek({
                                         copy(isLoading = false,
                                                 phrase = translatedPhrase),
                                         stateAfterTranslateResult)
-                            })
-
-                            viewAssert("view after translate result", {
-                                translatePresenter.render(stateAfterTranslateResult)
-
-                                Mockito.verify(view).isAttached()
-                                Mockito.verify(view).showFromText(true)
-                                Mockito.verify(view).showToText(true)
-                                Mockito.verify(view).showProgress(View.GONE)
-                                Mockito.verify(view).showSourceLang(View.VISIBLE)
-                                Mockito.verify(view).showTranslateBtn(View.VISIBLE)
-                                Mockito.verify(view).setFromLang("english")
-                                Mockito.verify(view).setToLang("russian")
-                                Mockito.verify(view).setText("cat")
-                                Mockito.verify(view).setSourceText("cat")
-                                Mockito.verify(view).setTranslatedText("кот")
-                                Mockito.verify(view).showFavoriteBtn(View.VISIBLE)
-                                Mockito.verify(view).setFavoriteBtn(false)
-                                Mockito.verifyNoMoreInteractions(view)
                             })
 
                             cmdShould("cmd after translate result", {
@@ -326,21 +212,6 @@ class TranslatePresenterTest : Spek({
                                     ), stateAfterChangeLangFrom)
                                 })
 
-                                viewAssert("view after translate result", {
-                                    translatePresenter.render(stateAfterChangeLangFrom)
-                                    Mockito.verify(view).isAttached()
-                                    Mockito.verify(view).showFromText(false)
-                                    Mockito.verify(view).showToText(false)
-                                    Mockito.verify(view).showProgress(View.VISIBLE)
-                                    Mockito.verify(view).showSourceLang(View.GONE)
-                                    Mockito.verify(view).showTranslateBtn(View.GONE)
-                                    Mockito.verify(view).setFromLang("deutsch")
-                                    Mockito.verify(view).setToLang("russian")
-                                    Mockito.verify(view).setText("cat")
-                                    Mockito.verify(view).showFavoriteBtn(View.GONE)
-                                    Mockito.verifyNoMoreInteractions(view)
-                                })
-
                                 cmdShould("cmd after change lang from", {
                                     assertBatch(cmdAfterChangeLangFrom,
                                             TranslatePresenter.SaveCurrentLangsCmd::class,
@@ -360,25 +231,6 @@ class TranslatePresenterTest : Spek({
                                             isLoading = true,
                                             langTo = Lang("es", "spanish")
                                     ), stateAfterChangeLangTo)
-                                })
-
-
-
-                                viewAssert("view after change lang same from", {
-                                    translatePresenter.render(stateAfterChangeLangTo)
-
-                                    //view after translate result
-                                    Mockito.verify(view).isAttached()
-                                    Mockito.verify(view).showFromText(false)
-                                    Mockito.verify(view).showToText(false)
-                                    Mockito.verify(view).showProgress(View.VISIBLE)
-                                    Mockito.verify(view).showSourceLang(View.GONE)
-                                    Mockito.verify(view).showTranslateBtn(View.GONE)
-                                    Mockito.verify(view).setFromLang("english")
-                                    Mockito.verify(view).setToLang("spanish")
-                                    Mockito.verify(view).setText("cat")
-                                    Mockito.verify(view).showFavoriteBtn(View.GONE)
-                                    Mockito.verifyNoMoreInteractions(view)
                                 })
 
                                 cmdShould("cmd after change lang to", {

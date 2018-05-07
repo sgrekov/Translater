@@ -43,7 +43,7 @@ class LangsPresenterTest {
     }
 
     private fun initState(): LangsPresenter.LangsState {
-        return LangsPresenter.LangsState(true, true, true, Langs(true), Pair(false, null), listOf())
+        return LangsPresenter.LangsState(true, true, true, Langs(true), listOf())
     }
 
     private fun withCacheState(): LangsPresenter.LangsState {
