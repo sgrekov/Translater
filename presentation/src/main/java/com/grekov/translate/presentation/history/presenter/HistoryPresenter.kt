@@ -21,6 +21,7 @@ import com.grekov.translate.presentation.core.elm.InputBinding
 import com.grekov.translate.presentation.core.elm.Program
 import com.grekov.translate.presentation.core.elm.Screen
 import com.grekov.translate.presentation.core.elm.State
+import com.grekov.translate.presentation.core.elm.TimeTravel
 import com.grekov.translate.presentation.core.presenter.BasePresenter
 import com.grekov.translate.presentation.history.view.IHistoryView
 import io.reactivex.Single
@@ -44,7 +45,7 @@ class HistoryPresenter(
     val historyPhrasesSub: HistoryPhrasesSub,
     val historyClearUseCase: HistoryClearUseCase
 ) : BasePresenter<IHistoryView, HistoryPresenter.HistoryState>(view, program),
-    Component<HistoryPresenter.HistoryState> {
+    Component<HistoryPresenter.HistoryState>, TimeTravel {
 
     @Parcelize
     data class HistoryState(

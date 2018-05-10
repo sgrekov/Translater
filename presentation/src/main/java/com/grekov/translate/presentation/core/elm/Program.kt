@@ -3,7 +3,6 @@ package com.grekov.translate.presentation.core.elm
 import com.grekov.translate.domain.elm.BatchCmd
 import com.grekov.translate.domain.elm.Cmd
 import com.grekov.translate.domain.elm.ErrorMsg
-import com.grekov.translate.domain.elm.HighPriorityMsg
 import com.grekov.translate.domain.elm.Idle
 import com.grekov.translate.domain.elm.Msg
 import com.grekov.translate.domain.elm.None
@@ -41,18 +40,20 @@ interface Component<S : State> {
 
     fun sub(state: S)
 
-    fun travel(screen: Screen, state: State)
+}
 
+interface TimeTravel {
+
+    fun travel(screen: Screen, state: State)
 }
 
 
-class Program<S : State>(val outputScheduler: Scheduler) {
+class Program<S : State>(private val outputScheduler: Scheduler) {
 
     private val msgRelay: BehaviorRelay<Msg> = BehaviorRelay.create()
     private var msgQueue = ArrayDeque<Msg>()
-    private var highPriorityMsgQueue = ArrayDeque<HighPriorityMsg>()
     private var disposableMap: MutableMap<String, Disposable> = mutableMapOf()
-    lateinit private var state: S
+    private lateinit var state: S
     var restoredState: S? = null
     private lateinit var component: Component<S>
     private var lock: Boolean = false
@@ -60,11 +61,13 @@ class Program<S : State>(val outputScheduler: Scheduler) {
 
     constructor(outputScheduler: Scheduler, tt: TimeTraveller) : this(outputScheduler) {
         this.timeTraveller = tt
-        timeTraveller?.stateRelay
+        if (::component.isInitialized && component is TimeTravel) {
+            timeTraveller?.stateRelay
                 ?.observeOn(outputScheduler)
                 ?.subscribe({ (screen, state) ->
-                    component.travel(screen, state)
+                    (component as TimeTravel).travel(screen, state)
                 })
+        }
     }
 
     fun init(initialState: S, component: Component<S>): Disposable {
@@ -72,47 +75,49 @@ class Program<S : State>(val outputScheduler: Scheduler) {
         this.state = initialState
         subscribeToSub(initialState)
         return msgRelay
-                .observeOn(outputScheduler)
-                .map { msg ->
-                    lazyLog { Timber.d("elm reduce msg:${msg.javaClass.simpleName} ") }
-                    val updateResult = component.update(msg, this.state)
-                    val newState = updateResult.first
+            .observeOn(outputScheduler)
+            .map { msg ->
+                lazyLog { Timber.d("elm reduce msg:${msg.javaClass.simpleName} ") }
+                val updateResult = component.update(msg, this.state)
+                val newState = updateResult.first
 
-                    timeTraveller?.consoleRecords?.add(ConsoleTimeRecord(newState.screen, msg.javaClass.simpleName, newState.toString()))
-                    timeTraveller?.records?.add(TimeRecord(newState.screen, msg, newState))
+                timeTraveller?.consoleRecords?.add(
+                    ConsoleTimeRecord(
+                        newState.screen,
+                        msg.javaClass.simpleName,
+                        newState.toString()
+                    )
+                )
+                timeTraveller?.records?.add(TimeRecord(newState.screen, msg, newState))
 
-                    this.state = newState
-                    if (msg is HighPriorityMsg && highPriorityMsgQueue.size > 0) {
-                        highPriorityMsgQueue.removeFirst()
-                        lazyLog { Timber.d("elm remove high priority from queue:${msg.javaClass.simpleName}") }
-                    } else if (msgQueue.size > 0) {
-                        msgQueue.removeFirst()
-                        lazyLog { Timber.d("elm remove from queue:${msg.javaClass.simpleName}") }
-                    }
-
-                    lock = false
-                    component.render(newState)
-                    component.sub(newState)
-                    loop()
-                    return@map updateResult
+                this.state = newState
+                if (msgQueue.size > 0) {
+                    msgQueue.removeFirst()
+                    lazyLog { Timber.d("elm remove from queue:${msg.javaClass.simpleName}") }
                 }
-                .filter { (_, cmd) -> cmd !is None }
-                .observeOn(Schedulers.io())
-                .flatMap { (_, cmd) ->
-                    lazyLog { Timber.d("elm call cmd:$cmd") }
-                    call(cmd)
-                }
-                .observeOn(outputScheduler)
-                .subscribe({ msg ->
-                    when (msg) {
-                        is Idle -> {
-                        }
-                        is HighPriorityMsg -> highPriorityMsgQueue.addLast(msg)
-                        else -> msgQueue.addLast(msg)
-                    }
 
-                    loop()
-                })
+                lock = false
+                component.render(newState)
+                component.sub(newState)
+                loop()
+                return@map updateResult
+            }
+            .filter { (_, cmd) -> cmd !is None }
+            .observeOn(Schedulers.io())
+            .flatMap { (_, cmd) ->
+                lazyLog { Timber.d("elm call cmd:$cmd") }
+                call(cmd)
+            }
+            .observeOn(outputScheduler)
+            .subscribe({ msg ->
+                when (msg) {
+                    is Idle -> {
+                    }
+                    else -> msgQueue.addLast(msg)
+                }
+
+                loop()
+            })
     }
 
     fun call(cmd: Cmd): Observable<Msg> {
@@ -129,8 +134,8 @@ class Program<S : State>(val outputScheduler: Scheduler) {
         return when (cmd) {
             is OneShotCmd -> Observable.just(cmd.msg)
             else -> component.call(cmd)
-                    .onErrorResumeNext { err -> Single.just(ErrorMsg(err, cmd)) }
-                    .toObservable()
+                .onErrorResumeNext { err -> Single.just(ErrorMsg(err, cmd)) }
+                .toObservable()
         }
     }
 
@@ -145,15 +150,10 @@ class Program<S : State>(val outputScheduler: Scheduler) {
     private fun loop() {
         if (timeTraveller?.adventureMode == true) return
 
-        lazyLog { Timber.d("elm loop queue size:${msgQueue.size} high priority size:${highPriorityMsgQueue.size}") }
+        lazyLog { Timber.d("elm loop queue size:${msgQueue.size}") }
         lazyLog { msgQueue.forEach { Timber.d("elm in queue:${it.javaClass.simpleName}") } }
-        lazyLog { highPriorityMsgQueue.forEach { Timber.d("elm in high priority queue:${it.javaClass.simpleName}") } }
         if (!lock) {
-            if (highPriorityMsgQueue.size > 0) {
-                lock = true
-                lazyLog { Timber.d("elm accept from high priority loop ${highPriorityMsgQueue.first}") }
-                msgRelay.accept(highPriorityMsgQueue.first)
-            } else if (msgQueue.size > 0) {
+            if (msgQueue.size > 0) {
                 lock = true
                 lazyLog { Timber.d("elm accept from loop ${msgQueue.first}") }
                 msgRelay.accept(msgQueue.first)
@@ -164,24 +164,13 @@ class Program<S : State>(val outputScheduler: Scheduler) {
     fun accept(msg: Msg) {
         if (timeTraveller?.adventureMode == true) return
 
-        if (msg is HighPriorityMsg) {1
-            highPriorityMsgQueue.addLast(msg)
-        } else {
-            msgQueue.addLast(msg)
-        }
-        lazyLog { Timber.d("elm add msg: ${msg.javaClass.simpleName} queue size:${msgQueue.size} high priority size:${highPriorityMsgQueue.size}") }
+        msgQueue.addLast(msg)
+        lazyLog { Timber.d("elm add msg: ${msg.javaClass.simpleName} queue size:${msgQueue.size}") }
         lazyLog { msgQueue.forEach { Timber.d("elm accept in queue:${it.javaClass.simpleName}") } }
-        lazyLog { highPriorityMsgQueue.forEach { Timber.d("elm accept in high priority queue:${it.javaClass.simpleName}") } }
-        if (!lock) {
-            if (msgQueue.size == 1 && highPriorityMsgQueue.isEmpty()) {
-                lock = true
-                lazyLog { Timber.d("elm accept event:${msg.javaClass.simpleName}") }
-                msgRelay.accept(msgQueue.first)
-            } else if (msgQueue.isEmpty() && highPriorityMsgQueue.size == 1) {
-                lock = true
-                lazyLog { Timber.d("elm accept high priority event:${msg.javaClass.simpleName}") }
-                msgRelay.accept(highPriorityMsgQueue.first)
-            }
+        if (!lock && msgQueue.size == 1) {
+            lock = true
+            lazyLog { Timber.d("elm accept event:${msg.javaClass.simpleName}") }
+            msgRelay.accept(msgQueue.first)
         }
     }
 
@@ -193,14 +182,16 @@ class Program<S : State>(val outputScheduler: Scheduler) {
         disposableMap.forEach { (_, disposable) -> if (!disposable.isDisposed) disposable.dispose() }
     }
 
-    fun <T : Msg, P> addSub(useCaseStream: ElmSubscription<T, P>,
-                            params: P) {
+    fun <T : Msg, P> addSub(
+        useCaseStream: ElmSubscription<T, P>,
+        params: P
+    ) {
         val (sub, created) = useCaseStream.getObservable(params)
         if (created) {
             var disposable = disposableMap[useCaseStream.javaClass.canonicalName]
             disposable?.dispose()
             disposableMap.put(useCaseStream.javaClass.canonicalName,
-                    sub.subscribe { msg -> accept(msg) })
+                sub.subscribe { msg -> accept(msg) })
         }
     }
 

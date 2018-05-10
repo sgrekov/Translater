@@ -3,7 +3,6 @@ package com.grekov.translate.presentation.main.presenter
 import android.annotation.SuppressLint
 import android.os.Parcelable
 import com.grekov.translate.domain.elm.Cmd
-import com.grekov.translate.domain.elm.HighPriorityMsg
 import com.grekov.translate.domain.elm.Idle
 import com.grekov.translate.domain.elm.Init
 import com.grekov.translate.domain.elm.Msg
@@ -13,6 +12,7 @@ import com.grekov.translate.domain.model.Phrase
 import com.grekov.translate.presentation.core.elm.Program
 import com.grekov.translate.presentation.core.elm.Screen
 import com.grekov.translate.presentation.core.elm.State
+import com.grekov.translate.presentation.core.elm.TimeTravel
 import com.grekov.translate.presentation.core.presenter.BasePresenter
 import com.grekov.translate.presentation.history.presenter.Favorites
 import com.grekov.translate.presentation.history.presenter.History
@@ -29,7 +29,7 @@ data class Home(val stub: Unit = Unit) : Screen(), Parcelable
 
 
 class HomePresenter(view: IHomeView, program: Program<HomeState>) :
-    BasePresenter<IHomeView, HomePresenter.HomeState>(view, program) {
+    BasePresenter<IHomeView, HomePresenter.HomeState>(view, program), TimeTravel {
 
 
     @Parcelize
@@ -43,7 +43,7 @@ class HomePresenter(view: IHomeView, program: Program<HomeState>) :
 
     data class TabSelectMsg(val tab: Screen) : Msg()
     data class PhraseSelectMsg(val phrase: Phrase) : Msg()
-    object ResetPhraseMsg : HighPriorityMsg()
+    object ResetPhraseMsg : Msg()
 
     override fun initialState(): HomeState {
         return HomeState(0, activeScreen = Translate())

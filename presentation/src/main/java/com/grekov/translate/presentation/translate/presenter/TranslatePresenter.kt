@@ -23,6 +23,7 @@ import com.grekov.translate.presentation.core.elm.InputBinding
 import com.grekov.translate.presentation.core.elm.Program
 import com.grekov.translate.presentation.core.elm.Screen
 import com.grekov.translate.presentation.core.elm.State
+import com.grekov.translate.presentation.core.elm.TimeTravel
 import com.grekov.translate.presentation.core.elm.cmds
 import com.grekov.translate.presentation.core.elm.inView
 import com.grekov.translate.presentation.core.presenter.BasePresenter
@@ -74,7 +75,8 @@ class TranslatePresenter(
     val checkFavoriteUseCase: CheckFavoriteUseCase,
     val loadLangsByCodeUseCaseSingle: LoadLangsByCodeUseCaseSingle
 ) : BasePresenter<ITranslateView, TranslatePresenter.TranslateState>(view, program),
-    Component<TranslatePresenter.TranslateState> {
+    Component<TranslatePresenter.TranslateState>,
+    TimeTravel {
 
     @SuppressLint("ParcelCreator")
     @Parcelize

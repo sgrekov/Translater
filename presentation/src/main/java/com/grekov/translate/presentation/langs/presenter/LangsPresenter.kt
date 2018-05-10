@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Parcelable
 import com.grekov.translate.domain.elm.Cmd
 import com.grekov.translate.domain.elm.ErrorMsg
-import com.grekov.translate.domain.elm.HighPriorityMsg
 import com.grekov.translate.domain.elm.Idle
 import com.grekov.translate.domain.elm.Init
 import com.grekov.translate.domain.elm.Msg
@@ -16,6 +15,7 @@ import com.grekov.translate.presentation.core.elm.Component
 import com.grekov.translate.presentation.core.elm.Program
 import com.grekov.translate.presentation.core.elm.Screen
 import com.grekov.translate.presentation.core.elm.State
+import com.grekov.translate.presentation.core.elm.TimeTravel
 import com.grekov.translate.presentation.core.elm.inView
 import com.grekov.translate.presentation.core.presenter.BasePresenter
 import com.grekov.translate.presentation.langs.view.ILangsView
@@ -34,7 +34,9 @@ class LangsPresenter(
     program: Program<LangsState>,
     private val getLangsUseCase: GetLangsUseCase,
     private val from: Boolean
-) : BasePresenter<ILangsView, LangsPresenter.LangsState>(view, program), Component<LangsPresenter.LangsState> {
+) : BasePresenter<ILangsView, LangsPresenter.LangsState>(view, program),
+    Component<LangsPresenter.LangsState>,
+    TimeTravel {
 
     @Parcelize
     data class LangsState(
@@ -48,7 +50,7 @@ class LangsPresenter(
     data class LangsFromCacheMsg(val langs: List<Lang>? = null) : Msg()
     data class LangsFromCloudMsg(val langs: List<Lang>) : Msg()
     data class SelectLangMsg(val lang: Lang) : Msg()
-    object HandleBackMsg : HighPriorityMsg()
+    object HandleBackMsg : Msg()
 
     class LangsFromCacheCmd(val resultMsg: Msg? = null) : Cmd()
     class LangsFromCloudCmd : Cmd()
