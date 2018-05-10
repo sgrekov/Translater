@@ -3,7 +3,6 @@ package com.grekov.translate.presentation.translate.presenter
 import android.annotation.SuppressLint
 import android.os.Parcelable
 import com.grekov.translate.domain.IAppPreferencesManager
-import com.grekov.translate.domain.elm.BatchCmd
 import com.grekov.translate.domain.elm.Cmd
 import com.grekov.translate.domain.elm.ErrorMsg
 import com.grekov.translate.domain.elm.Idle
@@ -24,9 +23,31 @@ import com.grekov.translate.presentation.core.elm.InputBinding
 import com.grekov.translate.presentation.core.elm.Program
 import com.grekov.translate.presentation.core.elm.Screen
 import com.grekov.translate.presentation.core.elm.State
+import com.grekov.translate.presentation.core.elm.cmds
 import com.grekov.translate.presentation.core.elm.inView
 import com.grekov.translate.presentation.core.presenter.BasePresenter
 import com.grekov.translate.presentation.langs.view.controller.LangsController
+import com.grekov.translate.presentation.translate.elm.ChangeLangsMsg
+import com.grekov.translate.presentation.translate.elm.CheckFavoriteCmd
+import com.grekov.translate.presentation.translate.elm.DropTextMsg
+import com.grekov.translate.presentation.translate.elm.FavoriteCheckResultMsg
+import com.grekov.translate.presentation.translate.elm.GetLangsByCodeCmd
+import com.grekov.translate.presentation.translate.elm.GoToLangsCmd
+import com.grekov.translate.presentation.translate.elm.LangsByCodeMsg
+import com.grekov.translate.presentation.translate.elm.LangsFromPrefsMsg
+import com.grekov.translate.presentation.translate.elm.MakeFavoriteCmd
+import com.grekov.translate.presentation.translate.elm.MakeNotFavoriteCmd
+import com.grekov.translate.presentation.translate.elm.NavigateToLangsMsg
+import com.grekov.translate.presentation.translate.elm.PhraseSelectMsg
+import com.grekov.translate.presentation.translate.elm.RemoveFromFavoritesMsg
+import com.grekov.translate.presentation.translate.elm.RetrieveLangsFromPrefsCmd
+import com.grekov.translate.presentation.translate.elm.RotateLangsMsg
+import com.grekov.translate.presentation.translate.elm.SaveCurrentLangsCmd
+import com.grekov.translate.presentation.translate.elm.SaveToFavoritesMsg
+import com.grekov.translate.presentation.translate.elm.TextChangeMsg
+import com.grekov.translate.presentation.translate.elm.TranslateCmd
+import com.grekov.translate.presentation.translate.elm.TranslateMsg
+import com.grekov.translate.presentation.translate.elm.TranslateResultMsg
 import com.grekov.translate.presentation.translate.view.ITranslateView
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
@@ -68,30 +89,6 @@ class TranslatePresenter(
         override val screen: Screen = Translate()
     ) : State(screen), Parcelable
 
-    data class NavigateToLangsMsg(val from: Boolean) : Msg()
-    data class ChangeLangsMsg(val lang: Lang, val from: Boolean) : Msg()
-    data class LangsByCodeMsg(val from: Lang, val to: Lang) : Msg()
-    object RotateLangsMsg : Msg()
-    data class TranslateResultMsg(val text: Phrase) : Msg()
-    data class LangsFromPrefsMsg(val from: Lang, val to: Lang) : Msg()
-    object DropTextMsg : Msg()
-    object SaveToFavoritesMsg : Msg()
-    object RemoveFromFavoritesMsg : Msg()
-    class FavoriteCheckResultMsg(val phrase: String, val from: Lang, val to: Lang, val favorite: Boolean) : Msg()
-    data class TextChangeMsg(val text: String) : Msg()
-    data class PhraseSelectMsg(val phrase: Phrase) : Msg()
-    object TranslateMsg : Msg()
-
-    object RetrieveLangsFromPrefsCmd : Cmd()
-    data class SaveCurrentLangsCmd(val from: Lang, val to: Lang) : Cmd()
-    data class TranslateCmd(val text: String, val from: Lang, val to: Lang) : Cmd()
-    data class MakeFavoriteCmd(val text: String, val from: Lang, val to: Lang) : Cmd()
-    data class MakeNotFavoriteCmd(val text: String, val from: Lang, val to: Lang) : Cmd()
-    data class CheckFavoriteCmd(val text: String, val from: Lang, val to: Lang) : Cmd()
-    data class GetLangsByCodeCmd(val langsLiteral: String) : Cmd()
-    data class GoToLangsCmd(val from: Boolean, val langsSelectCallback: LangsController.TargetLangSelectListener) :
-        Cmd()
-
     override fun initialState(): TranslateState {
         val (langFrom, langTo) = if (Locale.getDefault().language == "ru") {
             Pair(Lang("ru", "Русский"), Lang("en", "Английский"))
@@ -129,12 +126,14 @@ class TranslatePresenter(
                     newState, if (state === newState) {
                         None
                     } else {
-                        BatchCmd(
-                            listOf(
-                                SaveCurrentLangsCmd(newState.langFrom, newState.langTo),
-                                CheckFavoriteCmd(newState.currentText, newState.langFrom, newState.langTo),
-                                TranslateCmd(newState.currentText, newState.langFrom, newState.langTo)
-                            )
+                        cmds(
+                            SaveCurrentLangsCmd(newState.langFrom, newState.langTo),
+                            CheckFavoriteCmd(
+                                newState.currentText,
+                                newState.langFrom,
+                                newState.langTo
+                            ),
+                            TranslateCmd(newState.currentText, newState.langFrom, newState.langTo)
                         )
                     }
                 )
@@ -143,17 +142,22 @@ class TranslatePresenter(
                 state.copy(isLoading = false, langFrom = msg.from, langTo = msg.to) to None
             }
             is NavigateToLangsMsg -> {
-                state to GoToLangsCmd(msg.from, viewReference.get() as LangsController.TargetLangSelectListener)
+                state to GoToLangsCmd(
+                    msg.from,
+                    viewReference.get() as LangsController.TargetLangSelectListener
+                )
             }
             is RotateLangsMsg -> {
                 val newState = state.copy(langFrom = state.langTo, langTo = state.langFrom)
                 newState to
-                        BatchCmd(
-                            listOf(
-                                SaveCurrentLangsCmd(newState.langFrom, newState.langTo),
-                                CheckFavoriteCmd(newState.currentText, newState.langFrom, newState.langTo),
-                                TranslateCmd(newState.currentText, newState.langFrom, newState.langTo)
-                            )
+                        cmds(
+                            SaveCurrentLangsCmd(newState.langFrom, newState.langTo),
+                            CheckFavoriteCmd(
+                                newState.currentText,
+                                newState.langFrom,
+                                newState.langTo
+                            ),
+                            TranslateCmd(newState.currentText, newState.langFrom, newState.langTo)
                         )
             }
             is TextChangeMsg -> state.copy(currentText = msg.text) to CheckFavoriteCmd(
@@ -163,7 +167,11 @@ class TranslatePresenter(
             )
             is TranslateMsg -> {
                 if (state.currentText.isNotBlank()) {
-                    state.copy(isLoading = true) to TranslateCmd(state.currentText, state.langFrom, state.langTo)
+                    state.copy(isLoading = true) to TranslateCmd(
+                        state.currentText,
+                        state.langFrom,
+                        state.langTo
+                    )
                 } else {
                     state to None
                 }
@@ -171,9 +179,21 @@ class TranslatePresenter(
             is TranslateResultMsg -> {
                 state.copy(isLoading = false, phrase = msg.text) to None
             }
-            is DropTextMsg -> state.copy(currentText = "", phrase = null, isFavorite = false) to None
-            is SaveToFavoritesMsg -> state to MakeFavoriteCmd(state.currentText, state.langFrom, state.langTo)
-            is RemoveFromFavoritesMsg -> state to MakeNotFavoriteCmd(state.currentText, state.langFrom, state.langTo)
+            is DropTextMsg -> state.copy(
+                currentText = "",
+                phrase = null,
+                isFavorite = false
+            ) to None
+            is SaveToFavoritesMsg -> state to MakeFavoriteCmd(
+                state.currentText,
+                state.langFrom,
+                state.langTo
+            )
+            is RemoveFromFavoritesMsg -> state to MakeNotFavoriteCmd(
+                state.currentText,
+                state.langFrom,
+                state.langTo
+            )
             is FavoriteCheckResultMsg -> {
                 if (state.currentText == msg.phrase && state.langFrom == msg.from && state.langTo == msg.to) {
                     state.copy(isFavorite = msg.favorite) to None
@@ -233,16 +253,44 @@ class TranslatePresenter(
             is SaveCurrentLangsCmd ->
                 appPreferencesManager.saveLangs(cmd.from, cmd.to).toSingle { Idle }
             is TranslateCmd ->
-                translateUseCase.getSingle(Phrase(cmd.text, null, getLangLiteral(cmd.from, cmd.to), created = Date()))
+                translateUseCase.getSingle(
+                    Phrase(
+                        cmd.text,
+                        null,
+                        getLangLiteral(cmd.from, cmd.to),
+                        created = Date()
+                    )
+                )
                     .map { phrase -> TranslateResultMsg(phrase) }
             is MakeFavoriteCmd ->
-                makeFavoriteUseCase.getCompletable(MakeFavoriteParams(cmd.text, cmd.from, cmd.to, true))
+                makeFavoriteUseCase.getCompletable(
+                    MakeFavoriteParams(
+                        cmd.text,
+                        cmd.from,
+                        cmd.to,
+                        true
+                    )
+                )
                     .toSingle { FavoriteCheckResultMsg(cmd.text, cmd.from, cmd.to, true) }
             is MakeNotFavoriteCmd ->
-                makeFavoriteUseCase.getCompletable(MakeFavoriteParams(cmd.text, cmd.from, cmd.to, false))
+                makeFavoriteUseCase.getCompletable(
+                    MakeFavoriteParams(
+                        cmd.text,
+                        cmd.from,
+                        cmd.to,
+                        false
+                    )
+                )
                     .toSingle { FavoriteCheckResultMsg(cmd.text, cmd.from, cmd.to, false) }
             is CheckFavoriteCmd -> {
-                checkFavoriteUseCase.getSingle(MakeFavoriteParams(cmd.text, cmd.from, cmd.to, false))
+                checkFavoriteUseCase.getSingle(
+                    MakeFavoriteParams(
+                        cmd.text,
+                        cmd.from,
+                        cmd.to,
+                        false
+                    )
+                )
                     .map { result -> FavoriteCheckResultMsg(cmd.text, cmd.from, cmd.to, result) }
             }
             is GetLangsByCodeCmd -> {

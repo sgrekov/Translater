@@ -1,8 +1,6 @@
 package com.grekov.translate.presentation
 
-import assertBatch
-import assertCmd
-import cmdShould
+import com.Spec
 import com.grekov.translate.domain.IAppPreferencesManager
 import com.grekov.translate.domain.elm.Init
 import com.grekov.translate.domain.elm.None
@@ -14,6 +12,17 @@ import com.grekov.translate.domain.model.Lang
 import com.grekov.translate.domain.model.Phrase
 import com.grekov.translate.presentation.core.elm.Program
 import com.grekov.translate.presentation.core.elm.TimeTraveller
+import com.grekov.translate.presentation.translate.elm.ChangeLangsMsg
+import com.grekov.translate.presentation.translate.elm.CheckFavoriteCmd
+import com.grekov.translate.presentation.translate.elm.FavoriteCheckResultMsg
+import com.grekov.translate.presentation.translate.elm.LangsFromPrefsMsg
+import com.grekov.translate.presentation.translate.elm.RetrieveLangsFromPrefsCmd
+import com.grekov.translate.presentation.translate.elm.RotateLangsMsg
+import com.grekov.translate.presentation.translate.elm.SaveCurrentLangsCmd
+import com.grekov.translate.presentation.translate.elm.TextChangeMsg
+import com.grekov.translate.presentation.translate.elm.TranslateCmd
+import com.grekov.translate.presentation.translate.elm.TranslateMsg
+import com.grekov.translate.presentation.translate.elm.TranslateResultMsg
 import com.grekov.translate.presentation.translate.presenter.TranslatePresenter
 import com.grekov.translate.presentation.translate.view.ITranslateView
 import io.reactivex.schedulers.Schedulers
@@ -21,11 +30,8 @@ import mock
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.given
-import org.jetbrains.spek.api.dsl.it
 import org.mockito.Mockito
-import stateAssert
 import java.util.Date
-import kotlin.test.assertEquals
 
 class TranslatePresenterTest : Spek({
 
@@ -35,18 +41,21 @@ class TranslatePresenterTest : Spek({
     val makeFavUseCase: MakeFavoriteUseCase = mock()
     val checkFavUseCase: CheckFavoriteUseCase = mock()
     val loadLangsUseCaseSingle: LoadLangsByCodeUseCaseSingle = mock()
-    val navigator : Navigator = mock()
+    val navigator: Navigator = mock()
+
     var translatePresenter = TranslatePresenter(
-            view,
-            Program(Schedulers.trampoline(), TimeTraveller()),
-            appPrefs,
+        view,
+        Program(Schedulers.trampoline(), TimeTraveller()),
+        appPrefs,
         navigator,
-            makeTranslateUseCase,
-            makeFavUseCase,
-            checkFavUseCase,
-            loadLangsUseCaseSingle
+        makeTranslateUseCase,
+        makeFavUseCase,
+        checkFavUseCase,
+        loadLangsUseCaseSingle
     )
     Mockito.`when`(view.isAttached()).thenReturn(true)
+
+    val spec = Spec(translatePresenter)
 
     describe("translate screen") {
 
@@ -58,192 +67,132 @@ class TranslatePresenterTest : Spek({
             Mockito.reset(view)
         }
 
+        val russianLang = Lang("ru", "russian")
+        val englishLang = Lang("en", "english")
+        val germanLang = Lang("de", "deutsch")
+
         given("translate screen init ", {
             val initialState = TranslatePresenter.TranslateState(
-                    langFrom = Lang("ru", "russian"),
-                    langTo = Lang("en", "english"))
+                langFrom = russianLang,
+                langTo = englishLang
+            )
 
-            val (stateAfterInit, cmdAfterInit) =
-                    translatePresenter.update(
-                            Init,
-                            initialState)
+            spec
+                .withState(initialState)
+                .whenUpdate(Init)
+                .thenCmd(RetrieveLangsFromPrefsCmd)
+                .andState { it.copy(isLoading = true) }
+                .whenUpdate(
+                    LangsFromPrefsMsg(
+                        englishLang,
+                        russianLang
+                    )
+                )
+                .thenCmd(None).andState {
+                    it.copy(
+                        isLoading = false,
+                        langFrom = englishLang,
+                        langTo = russianLang
+                    )
+                }.whenUpdate(TextChangeMsg("cat"))
+                .thenCmd(
+                    CheckFavoriteCmd(
+                        "cat",
+                        englishLang,
+                        russianLang
+                    )
+                )
+                .andState { it.copy(currentText = "cat") }
+                .whenUpdate(
+                    FavoriteCheckResultMsg(
+                        "cat",
+                        englishLang,
+                        russianLang,
+                        true
+                    )
+                )
+                .thenCmd(None).andState { it.copy(isFavorite = true) }
 
-            stateAssert("", {
-                assertEquals(initialState.copy(isLoading = true), stateAfterInit)
-            })
+            val phrase = Phrase("cat", "кот", "en-ru", false, Date())
 
-            cmdShould("cmd after translate init", {
-                assertCmd(cmdAfterInit, TranslatePresenter.RetrieveLangsFromPrefsCmd::class)
-            })
+            given("start translate ", {
+                spec
+                    .whenUpdate(TranslateMsg)
+                    .thenCmd(
+                        TranslateCmd(
+                            "cat",
+                            englishLang,
+                            russianLang
+                        )
+                    ).andState { it.copy(isLoading = true) }
+                    .whenUpdate(
+                        TranslateResultMsg(
+                            phrase
+                        )
+                    ).thenCmd(None).andState { it.copy(isLoading = false, phrase = phrase) }
 
-            given("langs loaded from prefs", {
-                val (stateAfterPrefsLangs, cmdAfterPrefsLangs) =
-                        translatePresenter.update(
-                                TranslatePresenter.LangsFromPrefsMsg(Lang("en", "english"), Lang("ru", "russian")),
-                                stateAfterInit)
+                given("change lang from", {
 
-                stateAssert("state after langs loaded from prefs", {
-                    assertEquals(stateAfterInit.
-                            copy(isLoading = false,
-                                    langFrom = Lang("en", "english"),
-                                    langTo = Lang("ru", "russian")),
-                            stateAfterPrefsLangs)
-                })
+                    spec
+                        .whenUpdate(
+                            ChangeLangsMsg(
+                                germanLang,
+                                true
+                            )
+                        )
+                        .thenState {
+                            it.copy(
+                                isLoading = true,
+                                langFrom = germanLang
+                            )
+                        }
+                        .andCmdBatch(
+                            SaveCurrentLangsCmd(
+                                germanLang,
+                                russianLang
+                            ),
+                            CheckFavoriteCmd(
+                                "cat",
+                                germanLang,
+                                russianLang
+                            ),
+                            TranslateCmd(
+                                "cat",
+                                germanLang,
+                                russianLang
+                            )
+                        )
 
-                cmdShould("cmd after langs loaded from prefs", {
-                    assertCmd(cmdAfterPrefsLangs, None::class)
-                })
+                    given("on flip langs click") {
+                        spec
+                            .whenUpdate(RotateLangsMsg)
+                            .thenState {
+                                it.copy(
+                                    langTo = germanLang,
+                                    langFrom = russianLang
+                                )
+                            }
+                            .andCmdBatch(
+                                SaveCurrentLangsCmd(
+                                    russianLang,
+                                    germanLang
+                                ),
+                                CheckFavoriteCmd(
+                                    "cat",
+                                    russianLang,
+                                    germanLang
+                                ),
+                                TranslateCmd(
+                                    "cat",
+                                    russianLang,
+                                    germanLang
+                                )
+                            )
+                    }
 
-                given("input text for translate", {
-                    val (stateAfterTextChange, cmdAfterTextChange) =
-                            translatePresenter.update(
-                                    TranslatePresenter.TextChangeMsg("cat"),
-                                    stateAfterPrefsLangs)
-
-                    stateAssert("state after text input", {
-                        assertEquals(stateAfterPrefsLangs.
-                                copy(currentText = "cat"),
-                                stateAfterTextChange)
-                    })
-
-                    cmdShould("cmd after text input", {
-                        assertCmd(cmdAfterTextChange, TranslatePresenter.CheckFavoriteCmd::class)
-                    })
-
-                    given("check favorite result", {
-                        val (stateAfterFavCheck, cmdAfterFavCheck) =
-                                translatePresenter.update(
-                                        TranslatePresenter.FavoriteCheckResultMsg(
-                                                "cat",
-                                                Lang("en", "english"),
-                                                Lang("ru", "russian"),
-                                                true),
-                                        stateAfterTextChange)
-
-                        stateAssert("state after text input", {
-                            assertEquals(stateAfterTextChange.
-                                    copy(isFavorite = true),
-                                    stateAfterFavCheck)
-                        })
-
-
-                        cmdShould("cmd after fav check", {
-                            assertCmd(cmdAfterFavCheck, None::class)
-                        })
-                    })
-
-                    given("translate ", {
-                        val (stateAfterStartTranslate, cmdAfterStartTranslate) =
-                                translatePresenter.update(
-                                        TranslatePresenter.TranslateMsg,
-                                        stateAfterTextChange)
-
-                        stateAssert("state after start translate", {
-                            assertEquals(stateAfterTextChange.
-                                    copy(isLoading = true),
-                                    stateAfterStartTranslate)
-                        })
-
-                        cmdShould("cmd after start translate", {
-                            assertCmd(cmdAfterStartTranslate, TranslatePresenter.TranslateCmd::class)
-                        })
-
-                        given("translate result", {
-                            val translatedPhrase = Phrase("cat", "кот", "en-ru", false, Date())
-                            val (stateAfterTranslateResult, cmdAfterTranslateResult) =
-                                    translatePresenter.update(
-                                            TranslatePresenter.TranslateResultMsg(translatedPhrase),
-                                            stateAfterStartTranslate)
-
-                            stateAssert("state after translate result", {
-                                assertEquals(stateAfterStartTranslate.
-                                        copy(isLoading = false,
-                                                phrase = translatedPhrase),
-                                        stateAfterTranslateResult)
-                            })
-
-                            cmdShould("cmd after translate result", {
-                                assertCmd(cmdAfterTranslateResult, None::class)
-                            })
-
-                            given("change lang same from", {
-                                val (stateAfterChangeLangFromSame, cmdAfterChangeLangFromSame) =
-                                        translatePresenter.update(
-                                                TranslatePresenter.ChangeLangsMsg(Lang("en", "english"), true),
-                                                stateAfterTranslateResult)
-
-                                stateAssert("state after change lang same from", {
-                                    assertEquals(stateAfterTranslateResult,
-                                            stateAfterChangeLangFromSame)
-                                })
-
-                                it("cmd after change lang same from", {
-                                    assertCmd(cmdAfterChangeLangFromSame, None::class)
-                                })
-                            })
-
-                            given("change lang same to", {
-                                val (stateAfterChangeLangToSame, cmdAfterChangeLangToSame) =
-                                        translatePresenter.update(
-                                                TranslatePresenter.ChangeLangsMsg(Lang("ru", "russian"), false),
-                                                stateAfterTranslateResult)
-
-                                stateAssert("state after change lang same to", {
-                                    assertEquals(stateAfterTranslateResult,
-                                            stateAfterChangeLangToSame)
-                                })
-
-                                cmdShould("cmd after change lang same to", {
-                                    assertCmd(cmdAfterChangeLangToSame,
-                                            None::class)
-                                })
-                            })
-
-                            given("change lang from", {
-                                val (stateAfterChangeLangFrom, cmdAfterChangeLangFrom) =
-                                        translatePresenter.update(
-                                                TranslatePresenter.ChangeLangsMsg(Lang("de", "deutsch"), true),
-                                                stateAfterTranslateResult)
-
-                                stateAssert("state after change lang same from", {
-                                    assertEquals(stateAfterTranslateResult.copy(
-                                            isLoading = true,
-                                            langFrom = Lang("de", "deutsch")
-                                    ), stateAfterChangeLangFrom)
-                                })
-
-                                cmdShould("cmd after change lang from", {
-                                    assertBatch(cmdAfterChangeLangFrom,
-                                            TranslatePresenter.SaveCurrentLangsCmd::class,
-                                            TranslatePresenter.CheckFavoriteCmd::class,
-                                            TranslatePresenter.TranslateCmd::class)
-                                })
-                            })
-
-                            given("change lang to", {
-                                val (stateAfterChangeLangTo, cmdAfterChangeLangTo) =
-                                        translatePresenter.update(
-                                                TranslatePresenter.ChangeLangsMsg(Lang("es", "spanish"), false),
-                                                stateAfterTranslateResult)
-
-                                stateAssert("state after change lang same from", {
-                                    assertEquals(stateAfterTranslateResult.copy(
-                                            isLoading = true,
-                                            langTo = Lang("es", "spanish")
-                                    ), stateAfterChangeLangTo)
-                                })
-
-                                cmdShould("cmd after change lang to", {
-                                    assertBatch(cmdAfterChangeLangTo,
-                                            TranslatePresenter.SaveCurrentLangsCmd::class,
-                                            TranslatePresenter.CheckFavoriteCmd::class,
-                                            TranslatePresenter.TranslateCmd::class)
-                                })
-                            })
-                        })
-                    })
                 })
             })
+
         })
 
     }
