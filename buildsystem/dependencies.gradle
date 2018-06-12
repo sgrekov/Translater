@@ -1,15 +1,14 @@
 allprojects {
     repositories {
+        maven { url 'https://maven.google.com' }
         maven { url "https://jitpack.io" }
         maven { url "http://repository.ops4j.org/maven2/" }
         maven { url "https://clojars.org/repo/" }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         mavenCentral()
         jcenter()
-        maven { url 'https://maven.google.com' }
         maven { url "http://dl.bintray.com/jetbrains/spek" }
         maven { url "http://repository.jetbrains.com/all" }
-
         flatDir {
             dirs 'libs'
         }
@@ -23,7 +22,7 @@ ext {
     versionFullName = appVersionName + "_" + appVersionCode
 
     //Android
-    androidBuildToolsVersion = '26.0.2'
+    androidBuildToolsVersion = '27.0.3'
     androidMinSdkVersion = project.hasProperty('msdk') ? msdk.toInteger() : 16
     androidTargetSdkVersion = 25
     androidCompileSdkVersion = 25
@@ -36,7 +35,7 @@ ext {
     rxAndroidVersion = '2.0.1'
     rxBindingsVersion = '2.0.0'
     okhttpIdlingVersion = '1.0.0'
-    jetbrainsVersion = '7757'
+    jetbrainsVersion = '13.0'
     butterknifeVersion = '8.4.0'
     retrofitVersion = '2.2.0'
     okhttpVersion = '3.6.0'

@@ -16,6 +16,7 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
+import kotlin.test.assertEquals
 
 class LangsPresenterTest {
 
@@ -107,6 +108,7 @@ class LangsPresenterTest {
         Mockito.verify(view).showUpdateTitle()
         Mockito.verify(view).showProgress()
         Mockito.verify(view).showErrorText(false)
+        assertEquals(true, false)
         Mockito.verifyNoMoreInteractions(view)
         Assert.assertThat(cloudMsg, instanceOf(LangsPresenter.LangsFromCloudMsg::class.java))
         val state = upd.first

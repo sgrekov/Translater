@@ -1,7 +1,8 @@
 buildscript {
     repositories {
-        jcenter()
+        google()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
     }
 
     dependencies {
@@ -154,6 +155,8 @@ dependencies {
     implementation presentationDependencies.stetho
     implementation presentationDependencies.stethoRhino
     implementation presentationDependencies.timber
+
+    compile 'com.android.support:multidex:1.0.3'
 
 
     testImplementation presentationTestDependencies.mockitoCore
