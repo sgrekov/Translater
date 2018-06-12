@@ -50,8 +50,6 @@ class HomePresenterTest : Spek({
             viewAssert("", {
                 homePresenter.render(stateAfterInit)
 
-                assertEquals(true, false)
-
                 Mockito.verify(view).isAttached()
                 Mockito.verify(view).setTab(0)
                 Mockito.verify(view).showTranslate(null)
