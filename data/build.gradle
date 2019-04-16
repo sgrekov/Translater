@@ -55,8 +55,4 @@ dependencies {
     testCompile dataTestDependencies.mockitoCore
     testCompile dataTestDependencies.hamcrest
 
-
-
-
-
 }
