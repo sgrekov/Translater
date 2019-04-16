@@ -22,10 +22,10 @@ ext {
     versionFullName = appVersionName + "_" + appVersionCode
 
     //Android
-    androidBuildToolsVersion = '27.0.3'
+    androidBuildToolsVersion = '28.0.3'
     androidMinSdkVersion = project.hasProperty('msdk') ? msdk.toInteger() : 16
-    androidTargetSdkVersion = 25
-    androidCompileSdkVersion = 25
+    androidTargetSdkVersion = 28
+    androidCompileSdkVersion = 28
 
     //libs
     androidSupportLibVersion = '25.4.0'

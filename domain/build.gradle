@@ -26,8 +26,6 @@ android {
     lintOptions {
         abortOnError false
     }
-
-
 }
 
 dependencies {
@@ -46,7 +44,6 @@ dependencies {
     compile domainDependencies.paperParcel
     compile domainDependencies.paperParcelKotlin
     kapt domainDependencies.paperParcelApt
-
 
     testCompile domainTestDependencies.junit
     testCompile domainTestDependencies.mockitoCore
