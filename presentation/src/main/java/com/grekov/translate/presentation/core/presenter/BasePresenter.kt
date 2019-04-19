@@ -2,7 +2,7 @@ package com.grekov.translate.presentation.core.presenter
 
 import android.os.Bundle
 import android.os.Parcelable
-import android.support.annotation.CallSuper
+import androidx.annotation.CallSuper
 import com.grekov.translate.presentation.core.elm.Component
 import com.grekov.translate.presentation.core.elm.Program
 import com.grekov.translate.presentation.core.elm.State

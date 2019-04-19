@@ -2,9 +2,9 @@ package com.grekov.translate.presentation.core.view.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.annotation.CallSuper
-import android.support.annotation.LayoutRes
-import android.support.v7.app.AppCompatActivity
+import androidx.annotation.CallSuper
+import androidx.annotation.LayoutRes
+import androidx.appcompat.app.AppCompatActivity
 import butterknife.ButterKnife
 import com.grekov.translate.presentation.TranslateApp
 import com.grekov.translate.presentation.core.di.component.AppComponent

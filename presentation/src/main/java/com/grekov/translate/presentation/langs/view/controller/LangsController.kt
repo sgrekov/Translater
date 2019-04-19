@@ -2,8 +2,8 @@ package com.grekov.translate.presentation.langs.view.controller
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,12 +30,12 @@ import javax.inject.Inject
 class LangsController(b: Bundle) : BaseController(b), ILangsView {
 
     @Inject lateinit var langsPresenter: LangsPresenter
-    internal lateinit var adapter: LangsAdapter
+    private lateinit var adapter: LangsAdapter
     lateinit var langsListRV: RecyclerView
     lateinit var progressBar: ProgressBar
     lateinit var errorTV: TextView
     lateinit var titleTv: TextView
-    internal var isFrom: Boolean
+    private var isFrom: Boolean
 
     constructor(callback: TargetLangSelectListener, isFrom: Boolean) : this(BundleBuilder(Bundle()).putBoolean(IS_FROM, isFrom).build()) {
         if (callback is TranslateController){
@@ -178,7 +178,6 @@ class LangsController(b: Bundle) : BaseController(b), ILangsView {
     }
 
     companion object {
-
-        val IS_FROM = "is_from"
+        const val IS_FROM = "is_from"
     }
 }
