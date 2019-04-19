@@ -45,7 +45,7 @@ dependencies {
     compile domainDependencies.paperParcelKotlin
     kapt domainDependencies.paperParcelApt
 
-    testCompile domainTestDependencies.junit
-    testCompile domainTestDependencies.mockitoCore
-    testCompile domainTestDependencies.hamcrest
+    testImplementation domainTestDependencies.junit
+    testImplementation domainTestDependencies.mockitoCore
+    testImplementation domainTestDependencies.hamcrest
 }

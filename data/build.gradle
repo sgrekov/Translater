@@ -51,8 +51,8 @@ dependencies {
     compile dataDependencies.requeryAndroid
     kapt dataDependencies.requeryProcessor
 
-    testCompile dataTestDependencies.junit
-    testCompile dataTestDependencies.mockitoCore
-    testCompile dataTestDependencies.hamcrest
+    testImplementation dataTestDependencies.junit
+    testImplementation dataTestDependencies.mockitoCore
+    testImplementation dataTestDependencies.hamcrest
 
 }
