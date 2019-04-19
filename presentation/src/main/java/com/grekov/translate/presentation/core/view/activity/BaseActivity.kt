@@ -59,7 +59,7 @@ abstract class BaseActivity : AppCompatActivity() {
      */
     protected abstract fun setupComponent(appComponent: AppComponent)
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Timber.d("onActivityResult: ")
         super.onActivityResult(requestCode, resultCode, data)
     }
