@@ -24,12 +24,9 @@ android {
         abortOnError false
     }
 
-
-    buildToolsVersion '27.0.3'
 }
 
 dependencies {
-
     compile project(':domain')
 
     def dataDependencies = rootProject.ext.dataDependencies
@@ -54,5 +51,4 @@ dependencies {
     testImplementation dataTestDependencies.junit
     testImplementation dataTestDependencies.mockitoCore
     testImplementation dataTestDependencies.hamcrest
-
 }
