@@ -163,7 +163,7 @@ dependencies {
     implementation presentationDependencies.stethoRhino
     implementation presentationDependencies.timber
 
-    compile 'com.android.support:multidex:1.0.3'
+    compile 'androidx.multidex:multidex:2.0.1'
 
 
     testImplementation presentationTestDependencies.mockitoCore

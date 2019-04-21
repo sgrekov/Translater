@@ -29,6 +29,7 @@ ext {
 
     //libs
     androidSupportLibVersion = '25.4.0'
+    androidXVersion = '1.0.0'
     gmsVersion = '10.0.1'
     daggerVersion = '2.8'
     rxJavaVersion = '2.0.5'
@@ -36,7 +37,7 @@ ext {
     rxBindingsVersion = '2.0.0'
     okhttpIdlingVersion = '1.0.0'
     jetbrainsVersion = '13.0'
-    butterknifeVersion = '8.4.0'
+    butterknifeVersion = '10.1.0'
     retrofitVersion = '2.2.0'
     okhttpVersion = '3.6.0'
 //    gsonVersion = '2.4'
@@ -48,6 +49,7 @@ ext {
     requeryVersion = '1.4.0'
     rxRelayVersion = '2.0.0'
     paperParcelVersion = '2.0.4'
+    bottomNavigationViewEx = '2.0.4'
 
     //test libs
     mockitoCoreVersion = '2.8.9'
@@ -84,7 +86,7 @@ ext {
     ]
 
     dataDependencies = [
-            supportv4           : "com.android.support:support-v4:${androidSupportLibVersion}",
+            supportv4           : "androidx.legacy:legacy-support-v4:${androidXVersion}",
             dagger              : "com.google.dagger:dagger:${daggerVersion}",
             daggerCompiler      : "com.google.dagger:dagger-compiler:${daggerVersion}",
             jetbrainsAnnotations: "org.jetbrains:annotations:${jetbrainsVersion}",
@@ -111,11 +113,11 @@ ext {
     ]
 
     presentationDependencies = [
-            supportv4             : "com.android.support:support-v4:${androidSupportLibVersion}",
-            supportv13            : "com.android.support:support-v13:${androidSupportLibVersion}",
-            supportAppcompatv7    : "com.android.support:appcompat-v7:${androidSupportLibVersion}",
-            supportAnnotations    : "com.android.support:support-annotations:${androidSupportLibVersion}",
-            supportDesign         : "com.android.support:design:${androidSupportLibVersion}",
+            supportv4             : "androidx.legacy:legacy-support-v4:${androidXVersion}",
+            supportv13            : "androidx.legacy:legacy-support-v13:${androidXVersion}",
+            supportAppcompatv7    : "androidx.appcompat:appcompat:${androidXVersion}",
+            supportAnnotations    : "androidx.annotation:annotation:${androidXVersion}",
+            supportDesign         : "com.google.android.material:material:${androidXVersion}",
 
             rxAndroid             : "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}",
             rxBindings            : "com.jakewharton.rxbinding2:rxbinding:${rxBindingsVersion}",
@@ -130,7 +132,7 @@ ext {
             stethoRhino           : "com.facebook.stetho:stetho-js-rhino:${stethoVersion}",
             conductor             : "com.bluelinelabs:conductor:${conductorVersion}",
             timber                : "com.jakewharton.timber:timber:${timberVersion}",
-            bottomNavigationViewEx: "com.github.ittianyu:BottomNavigationViewEx:1.1.8"
+            bottomNavigationViewEx: "com.github.ittianyu:BottomNavigationViewEx:${bottomNavigationViewEx}"
     ]
 
     presentationTestDependencies = [
@@ -142,7 +144,7 @@ ext {
             mockitoAndroid       : "org.mockito:mockito-android:${mockitoCoreVersion}",
             daggerCompiler       : "com.google.dagger:dagger-compiler:${daggerVersion}",
 
-            supportAnnotations   : "com.android.support:support-annotations:${androidSupportLibVersion}",
+            supportAnnotations   : "androidx.annotation:annotation:${androidXVersion}",
             supportTestRunner    : 'com.android.support.test:runner:0.5',
             supportTestRules     : 'com.android.support.test:rules:0.5',
             hamcrest             : "org.hamcrest:hamcrest-library:${hamcrestVersion}",

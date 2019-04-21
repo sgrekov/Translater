@@ -24,10 +24,10 @@ import javax.inject.Inject
 
 class HomeController : BaseController, IHomeView {
 
-    @BindView(R.id.bottom_navigation) lateinit var bottomNavigationView: BottomNavigationViewEx
-    internal lateinit var translateRouter: Router
-    internal lateinit var historyRouter: Router
-    internal lateinit var favoritesRouter: Router
+    @BindView(R.id.bottom_navigation) @JvmField var bottomNavigationView: BottomNavigationViewEx? = null
+    private lateinit var translateRouter: Router
+    private lateinit var historyRouter: Router
+    private lateinit var favoritesRouter: Router
     @Inject lateinit var presenter: HomePresenter
     @BindView(R.id.translate_container) lateinit var translateContainer: ViewGroup
     @BindView(R.id.history_container) lateinit var historyContainer: ViewGroup
@@ -37,10 +37,10 @@ class HomeController : BaseController, IHomeView {
         const val TRANSLATE_TAG = "TRANSLATE_TAG"
     }
 
-    constructor() : super(Bundle()) {}
+    constructor() : super(Bundle())
 
     constructor(b: Bundle) : super(b) {
-        retainViewMode = Controller.RetainViewMode.RETAIN_DETACH
+        retainViewMode = RetainViewMode.RETAIN_DETACH
     }
 
     override val layoutId: Int
@@ -51,8 +51,9 @@ class HomeController : BaseController, IHomeView {
         historyRouter = getChildRouter(historyContainer)
         favoritesRouter = getChildRouter(favoritesContainer)
 
-        bottomNavigationView.setIconVisibility(false)
-        bottomNavigationView.setOnNavigationItemSelectedListener(menuListener)
+        bottomNavigationView?.setIconVisibility(false)
+        bottomNavigationView?.setOnNavigationItemSelectedListener(menuListener)
+
     }
 
     internal var menuListener = { item : MenuItem ->
@@ -77,9 +78,9 @@ class HomeController : BaseController, IHomeView {
 
 
     override fun setTab(tabNum: Int) {
-        bottomNavigationView.setOnNavigationItemSelectedListener(null)
-        bottomNavigationView.currentItem = tabNum
-        bottomNavigationView.setOnNavigationItemSelectedListener(menuListener)
+        bottomNavigationView?.onNavigationItemSelectedListener = null
+        bottomNavigationView?.currentItem = tabNum
+        bottomNavigationView?.setOnNavigationItemSelectedListener(menuListener)
     }
 
     override fun showTranslate(selectedPhrase: Phrase?) {

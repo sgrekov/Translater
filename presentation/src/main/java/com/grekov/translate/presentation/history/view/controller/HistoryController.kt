@@ -2,17 +2,16 @@ package com.grekov.translate.presentation.history.view.controller
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
-import com.bluelinelabs.conductor.Controller
 import com.grekov.translate.R
 import com.grekov.translate.domain.model.Phrase
 import com.grekov.translate.presentation.core.elm.InputBinding
@@ -28,7 +27,7 @@ import javax.inject.Inject
 
 class HistoryController(bundle: Bundle) : BaseController(bundle), IHistoryView {
 
-    internal var isFavorite: Boolean = false
+    private var isFavorite: Boolean = false
 
     @Inject lateinit var historyPresenter: HistoryPresenter
     @BindView(R.id.history_title) lateinit var titleTV: TextView
@@ -40,14 +39,14 @@ class HistoryController(bundle: Bundle) : BaseController(bundle), IHistoryView {
     lateinit var filterBinding : InputBinding
 
     companion object {
-        private val KEY_IS_FAVORITE = "key_favorite"
+        private const val KEY_IS_FAVORITE = "key_favorite"
     }
 
-    constructor(isFavorite: Boolean) : this(BundleBuilder(Bundle()).putBoolean(KEY_IS_FAVORITE, isFavorite).build()) {}
+    constructor(isFavorite: Boolean) : this(BundleBuilder(Bundle()).putBoolean(KEY_IS_FAVORITE, isFavorite).build())
 
     init {
         this.isFavorite = bundle.getBoolean(KEY_IS_FAVORITE)
-        retainViewMode = Controller.RetainViewMode.RETAIN_DETACH
+        retainViewMode = RetainViewMode.RETAIN_DETACH
     }
 
     override fun getPresenter(): IBasePresenter {
@@ -63,7 +62,7 @@ class HistoryController(bundle: Bundle) : BaseController(bundle), IHistoryView {
     override val layoutId = R.layout.history_layout
 
     override fun onViewBound(view: View) {
-        clearTV.setOnClickListener { view1 -> historyPresenter.clearClick() }
+        clearTV.setOnClickListener { historyPresenter.clearClick() }
 
         adapter = PhrasesAdapter(LayoutInflater.from(applicationContext), listOf())
 
@@ -97,11 +96,11 @@ class HistoryController(bundle: Bundle) : BaseController(bundle), IHistoryView {
 
     internal inner class PhrasesAdapter(private val inflater: LayoutInflater, var items: List<Phrase>) : RecyclerView.Adapter<PhrasesAdapter.ViewHolder>() {
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhrasesAdapter.ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             return ViewHolder(inflater.inflate(R.layout.phrase_list_item_layout, parent, false))
         }
 
-        override fun onBindViewHolder(holder: PhrasesAdapter.ViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             holder.bind(items[position])
         }
 
